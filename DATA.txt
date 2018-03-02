@@ -1,0 +1,91 @@
+Database Schema:
+
+User:
+    'id`	        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+	`password`	    varchar ( 128 ) NOT NULL,
+	`last_login`	datetime,
+	`is_superuser`	bool NOT NULL,
+	`username`  	varchar ( 150 ) NOT NULL UNIQUE,
+	`first_name`	varchar ( 30 ) NOT NULL,
+	`email`     	varchar ( 254 ) NOT NULL,
+	`is_staff`	    bool NOT NULL,
+	`is_active` 	bool NOT NULL,
+	`date_joined`	datetime NOT NULL,
+	`last_name`	    varchar ( 150 ) NOT NULL
+
+
+Polygon:
+    points          = models.CharField(max_length=1000,null=True)
+	created         = models.DateTimeField(auto_now_add=True, editable=False, null=True)
+	last_updated    = models.DateTimeField(auto_now=True, editable=False, null=True)
+	strokeColor     = models.CharField(max_length=255, null=True, blank=True)
+	strokeWeight    = models.IntegerField(null=True, blank=True)
+	strokeOpacity   = models.IntegerField(null=True, blank=True)
+	fillColor       = models.CharField(max_length=255, null=True, blank=True)
+	fillOpacity     = models.IntegerField(null=True, blank=True)
+
+
+
+LandingPage:
+    image           = models.FileField(null=True, blank=True, upload_to=landingPageLocation)
+
+
+Location:
+    name            = models.CharField(max_length=255,null=True)
+	created         = models.DateTimeField(auto_now_add=True, editable=False, null=True)
+	last_updated    = models.DateTimeField(auto_now=True, editable=False, null=True)
+	isReady         = models.BooleanField(default=False)
+	adminuser       = models.ForeignKey(User, on_delete=models.PROTECT)
+	lat             = models.DecimalField(decimal_places=19, max_digits=23,null=True)
+	lng             = models.DecimalField(decimal_places=19, max_digits=23,null=True)
+	price           = models.DecimalField(decimal_places=2, max_digits=12,null=True)
+	visibility      = models.BooleanField(default=True)
+	description     = models.CharField(max_length=1000,null=True)
+	polygon         = models.OneToOneField(Polygon, models.PROTECT ,null=True)
+	zoom            = models.IntegerField(null=True)
+
+PointType:
+    name            = models.CharField(max_length=255, null=True)
+
+Point:
+    location        = models.ForeignKey(Location, models.CASCADE, null=True)
+	pointtypes      =  models.ManyToManyField(PointType, blank=True)
+	created         = models.DateTimeField(auto_now_add=True, editable=False, null=True)
+	last_updated    = models.DateTimeField(auto_now=True, editable=False, null=True)
+	lat             = models.DecimalField(decimal_places=19, max_digits=23,null=True)
+	lng             = models.DecimalField(decimal_places=19, max_digits=23,null=True)
+	name            = models.CharField(max_length=255,null=True)
+	visibility      =  models.BooleanField(default=True)
+	radius          = models.DecimalField(decimal_places=4, max_digits=10,null=True)
+	audioFile       = models.FileField(null=True, blank=True, upload_to=audioFileLocation)
+	content_type    = models.CharField(max_length=255,null=True, blank=True)
+
+
+
+
+Tourist:
+    user            =  models.OneToOneField(User,on_delete=models.PROTECT)
+	paymentToken    =  models.CharField(max_length=1000, null=True)
+	created         = models.DateTimeField(auto_now_add=True, editable=False, null=True)
+	last_updated    = models.DateTimeField(auto_now=True, editable=False, null=True)
+
+
+
+
+UserPayment:
+    user            =  models.ForeignKey(User,on_delete=models.PROTECT)
+	startDate       = models.DateTimeField(null=True, auto_now=True)
+	endDate         = models.DateTimeField(null=True,default=paymentEndDate)
+	isProcessed     = models.BooleanField(default=False)
+	location        = models.ForeignKey(Location, models.PROTECT)
+	paymentId       =  models.CharField(max_length=1000, null=True)
+	paymentType     = models.CharField(max_length=255, null=True)
+	paymentAmount   = models.DecimalField(decimal_places=2, max_digits=6,null=True,blank=True)
+
+
+
+AdminActiveTime:
+    user        =  models.ForeignKey(User, on_delete=models.PROTECT)
+	startDate   = models.DateTimeField()
+	endDate     = models.DateTimeField(null=True)
+	location    = models.ForeignKey(Location, models.PROTECT)
