@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '+vs$zsf4#r9rve&7*b@yd#%7vd#!i+d514re$3-hvk#20wc3xe'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["192.168.1.79","192.168.1.73"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -136,7 +136,7 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': True,
-    'JWT_EXPIRATION_DELTA':datetime.timedelta(seconds=30),
+    'JWT_EXPIRATION_DELTA':datetime.timedelta(seconds=3000),
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
 }

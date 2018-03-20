@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Text, View, StyleSheet } from 'react-native';
 import MapView, { AnimatedRegion, Marker, Polygon } from 'react-native-maps';
+import AudioContorler from './AudioControl';
     
     
 export default class CityMap extends Component {
@@ -23,7 +24,13 @@ export default class CityMap extends Component {
             }
         };
         this.onRegionChange = this.onRegionChange.bind(this);
+        console.log(this.props);
     }
+    
+    componentDidMount () {
+        // AudioContorler.play("hi");
+      }
+    
 
     onRegionChange(region){
         console.log(region);
@@ -34,16 +41,23 @@ export default class CityMap extends Component {
 
     render() {
         return (
-            <MapView
-                region={this.state.region}
-                onRegionChange={this.onRegionChange}
-                style={styles.map}
-            >
-              <Marker.Animated
-                ref={marker => { this.marker = marker }}
-                coordinate={this.state.position}
-              />
-            </MapView>
+            <View style = {{flex:1}}>
+                <View style = {{flex:1}}>
+                    <MapView
+                        region={this.state.region}
+                        onRegionChange={this.onRegionChange}
+                        style={styles.map}
+                    >
+                    <Marker.Animated
+                        ref={marker => { this.marker = marker }}
+                        coordinate={this.state.position}
+                    />
+                    </MapView>
+                </View>
+                <View>
+                    <AudioContorler/>
+                </View>
+            </View>
         );
     }
 }   

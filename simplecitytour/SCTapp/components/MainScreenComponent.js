@@ -10,60 +10,6 @@ export default class HomeScreenComponent extends Component {
         title: 'Simple City Tour',
     };
 
-
-    constructor(props) {
-        super(props);
-        this.search = this.search.bind(this);
-        this.search_post = this.search_post.bind(this);
-    }
-
-    search() {
-        console.log('searching from django49');
-    
-        fetch('http://192.168.1.75:8000/', {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            // 'credentials': 'same-origin',
-          },
-          // body: JSON.stringify({'id':'0216','title':'bcit','code':'react-client','linenos':'n/a','language':'javascript','style':'test'}),
-            // body: {'original':'from react native'},
-          method: 'GET',
-            // credentials: 'include'
-          credentials: 'same-origin',
-        }).then((response) => {
-            console.log(response);
-            // console.log(JSON.parse(response._bodyText).hello);
-            return
-        }, (err) => { 
-            console.error(err)
-        });
-    }
-
-    
-    
-    search_post() {
-      console.log('searching from django49');
-    
-      fetch('http://192.168.137.1:8000/a/', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          // 'credentials': 'same-origin',
-        },
-        body: JSON.stringify({'id':'0216','title':'bcit','code':'react-client','linenos':'n/a','language':'javascript','style':'test'}),
-          // body: {'original':'from react native'},
-        method: 'POST',
-          // credentials: 'include'
-        credentials: 'same-origin',
-      }).then((response) => {
-          console.log(response);
-          // console.log(JSON.parse(response._bodyText).hello);
-          return
-      }, (err) => { 
-          console.error(err)
-      });
-    }
     render() {
         const {navigate} = this.props.navigation;
         return (
@@ -103,19 +49,6 @@ export default class HomeScreenComponent extends Component {
                 <Text style={{fontWeight: 'bold', fontSize: 20}}> LOG IN </Text>
                 </TouchableOpacity>
 
-                {/* <TouchableOpacity 
-                style={styles.button}
-                onPress={this.search}
-                >
-                <Text style={{fontWeight: 'bold', fontSize: 20}}> GET TEST </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={this.search_post}
-                >
-                <Text style={{fontWeight: 'bold', fontSize: 20}}> POST TEST </Text>
-                </TouchableOpacity> */}
                 </View>
 
             </View>

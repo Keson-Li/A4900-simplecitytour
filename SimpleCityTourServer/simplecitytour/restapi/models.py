@@ -53,6 +53,7 @@ class Location(models.Model):
 	description = models.CharField(max_length=1000,null=True)
 	polygon = models.OneToOneField(Polygon, models.PROTECT ,null=True)
 	zoom = models.IntegerField(null=True)
+	img = models.CharField(max_length=255,null=True)
 
 
 

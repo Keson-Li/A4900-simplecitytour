@@ -12,10 +12,14 @@ import { Text,
 		 TextInput,
 		 Image,
 		 Dimensions,
-		 ListView} from 'react-native';
+		 ListView,
+		 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
+import CallBackend from './CallBackend';
+import Storage from './StorageContorl';
+
 
 export default class CreateAccount extends Component {
 	constructor(props) {
@@ -29,8 +33,17 @@ export default class CreateAccount extends Component {
 		};
 
 		this.login = this.login.bind(this);
+		this.saveItem = this.saveItem.bind(this);
 
 	};
+
+	// async saveItem(item, selectedValue) {
+	// 	try {
+	// 	  await AsyncStorage.setItem(item, selectedValue);
+	// 	} catch (error) {
+	// 	  console.error('AsyncStorage error: ' + error.message);
+	// 	}
+	//   }
 	  
 	
 
@@ -40,41 +53,113 @@ export default class CreateAccount extends Component {
 	
 
 	login() {
-		url = "http://192.168.1.79:8000/api/login/";
+		path ='/api/login/';
+		url = IP +path;
 		data = {"username":this.state.username,"password":this.state.password};
-		// console.log(JSON.stringify(data)); 	  
-		fetch(url, {
-		  headers: {'Content-Type': 'application/json',},
-		  body: JSON.stringify(data),
-		  method: 'POST',
-		}).then((response) => {
-            console.log(JSON.parse(response._bodyText));
-            if (typeof JSON.parse(response._bodyText)["non_field_errors"] != "undefined") {
+		CallBackend.post(path, data).then((fetch_resp) =>{
+			if (fetch_resp[0]){
+
+
+			response = fetch_resp[1];
+
+
+			if (typeof JSON.parse(response._bodyText)["non_field_errors"] != "undefined") {
                 if (JSON.parse(response._bodyText)["non_field_errors"][0] === "Unable to log in with provided credentials."){
                     alert("Invaild username or password.")
                 }
-             }
+            }
 
-             if (typeof JSON.parse(response._bodyText)["token"] != "undefined") {
-                 token = JSON.parse(response._bodyText)["token"];
-                 console.log(token);
+            if (typeof JSON.parse(response._bodyText)["token"] != "undefined") {
+				token = JSON.parse(response._bodyText)["token"];
+				Storage.saveItem('token', token)
 
-                alert("Login Successfully.")
-             }
-
-			if (JSON.parse(response._bodyText)["token"] === "created"){
-				alert("Successfully Signup.")
+            	alert("Login Successfully.")
 			}
 
-			// console.log(JSON.parse(response._bodyText));
-			// if (response.data["token"]):
-			// 	token = response.data["token"]
-			// 	console.log(token)
-			// navigate('Locations');
-			return
-		}, (err) => { 
-			console.error(err)
+
+
+
+
+				// console.log(response);
+			
+
+			}else{
+
+
+				err = fetch_resp[1];
+				if (err.message = 'Network request failed'){
+					alert('Network failed.')
+				} else{
+					alert("Login failed.")
+
+				}
+			}
+
+		},(err) =>{
+
+				// this block was call when err ocour when call get/post in this file
+				
 		});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// fetch(url, {
+		//   headers: {'Content-Type': 'application/json',},
+		//   body: JSON.stringify(data),
+		//   method: 'POST',
+		// }).then((response) => {
+
+        //     if (typeof JSON.parse(response._bodyText)["non_field_errors"] != "undefined") {
+        //         if (JSON.parse(response._bodyText)["non_field_errors"][0] === "Unable to log in with provided credentials."){
+        //             alert("Invaild username or password.")
+        //         }
+        //      }
+
+        //     if (typeof JSON.parse(response._bodyText)["token"] != "undefined") {
+        //         token = JSON.parse(response._bodyText)["token"];
+		// 		this.saveItem('token', token)
+				
+		// 		// AsyncStorage.getItem('token').then((token) => {console.log(token)})
+
+        //     	alert("Login Successfully.")
+		// 	}
+			
+		// 	return
+
+		// }, (err) => { 
+		// 	if (err.message = 'Network request failed'){
+		// 		alert('Network failed.')
+
+		// 	} else{
+		// 		alert("Login failed.")
+
+		// 	}
+
+			
+		// });
 	}
 
 	_setPassword(password){

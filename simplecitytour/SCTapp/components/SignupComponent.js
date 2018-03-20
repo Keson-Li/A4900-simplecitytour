@@ -16,6 +16,8 @@ import { Text,
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
+import IP from './IPaddr';
+import CallBackend from './CallBackend';
 
 export default class CreateAccount extends Component {
 	constructor(props) {
@@ -32,43 +34,135 @@ export default class CreateAccount extends Component {
 		};
 
 		this.sign_up = this.sign_up.bind(this);
+		this.saveItem = this.saveItem.bind(this);
 
 	};
-	  
-	
 
+	async saveItem(item, selectedValue) {
+		try {
+		  await AsyncStorage.setItem(item, selectedValue);
+		} catch (error) {
+		  console.error('AsyncStorage error: ' + error.message);
+		}
+	  }
+	  
 	static navigationOptions = {
 		title: 'Sign Up',
 	};
 	
 
 	sign_up() {
-		url = "http://192.168.1.79:8000/api/signup/";
+		path ='/api/signup/';
+		url = IP +path;
 		data = {"username":this.state.lname+this.state.fname,"password":this.state.password,"email":this.state.email};
-		console.log(JSON.stringify(data)); 	  
-		fetch(url, {
-		  headers: {'Content-Type': 'application/json',},
-		  body: JSON.stringify(data),
-		  method: 'POST',
-		}).then((response) => {
+		CallBackend.post(path, data).then((fetch_resp) =>{
+			if (fetch_resp[0]){
 
-			if (JSON.parse(response._bodyText)["failed"] === "username existed"){
-				alert("This username alread exists.")
+
+				response = fetch_resp[1];
+
+				if (typeof JSON.parse(response._bodyText)['failed'] != "undefined") {
+					if (JSON.parse(response._bodyText)["failed"] === "username existed"){
+						alert("This username alread exists.");
+						return
+					}
+					if (JSON.parse(response._bodyText)["failed"] === "invaild_username_or_password"){
+						alert("Invaild Username Or Password.");
+						return
+					}
+
+					alert('Signup failed.');
+					return
+
+				}
+
+				if (JSON.parse(response._bodyText)["succeed"] === "created"){
+					alert("Successfully Signup.");
+				}
+
+
+
+				console.log(response);
+			
+
+			}else{
+
+				err = fetch_resp[1];
+
+				if (err.message = 'Network request failed'){
+					alert('Network failed.');
+
+				} else{
+					alert("Signup failed.");
+				}
+
+
 			}
 
-			if (JSON.parse(response._bodyText)["succeed"] === "created"){
-				alert("Successfully Signup.")
-			}
+		},(err) =>{
 
-			// console.log(JSON.parse(response._bodyText));
-			// if (response.data["token"]):
-			// 	token = response.data["token"]
-			// 	console.log(token)
-			// navigate('Locations');
-			return
-		}, (err) => { 
-			console.error(err)
+				console.log("Error: CallBackend.post")
+				
 		});
+
+
+		
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// 	fetch(url, {
+	// 	  headers: {'Content-Type': 'application/json',},
+	// 	  body: JSON.stringify(data),
+	// 	  method: 'POST',
+	// 	}).then((response) => {
+
+	// 		if (typeof JSON.parse(response._bodyText)['failed'] != "undefined") {
+    //             if (JSON.parse(response._bodyText)["failed"] === "username existed"){
+	// 				alert("This username alread exists.");
+	// 				return
+	// 			}
+	// 			if (JSON.parse(response._bodyText)["failed"] === "invaild_username_or_password"){
+	// 				alert("Invaild Username Or Password.");
+	// 				return
+	// 			}
+
+	// 			alert('Signup failed.');
+	// 			return
+
+    //          }
+
+	// 		if (JSON.parse(response._bodyText)["succeed"] === "created"){
+	// 			alert("Successfully Signup.");
+	// 		}
+	// 		return
+	// 	}, (err) => { 
+	// 		if (err.message = 'Network request failed'){
+	// 			alert('Network failed.');
+
+	// 		} else{
+	// 			alert("Signup failed.");
+	// 		}
+	// 		return
+	// 	});
+
+
+
 	}
 
 	_setPassword(password){
