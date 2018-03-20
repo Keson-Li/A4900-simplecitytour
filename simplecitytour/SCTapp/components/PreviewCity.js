@@ -54,7 +54,7 @@ export default class PreviewCity extends Component {
         imgReady:true,
       })
     },(err) =>{
-      console(err);
+      console.log(err);
       alert('Error!');
     })
   }

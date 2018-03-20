@@ -30,17 +30,17 @@ export default class AudioContorler extends Component {
         if (this.state.soundFile != null) {
             this.state.soundFile.stopAsync();
             this.state.isPlaying = false;
-            this.soundFile = null;sx
+            this.soundFile = null;
         }
 
     }
 
     async loadsound(filename){
-        var all_audio = {
-            hi:require('../audio/hi.m4a'),
-            hello:require('../audio/hello.mp3')
+        // var all_audio = {
+        //     hi:require('../audio/hi.m4a'),
+        //     hello:require('../audio/hello.mp3')
 
-        }
+        // }
         console.log("in audio");
         audio_path = '/api/getaudio/';
         online_song = 'https://d1qg6pckcqcdk0.cloudfront.net/country/parmalee_hc201403_05_closeyoureyes.m4a' ;
@@ -58,6 +58,8 @@ export default class AudioContorler extends Component {
             // await Expo.Audio.setIsEnabledAsync(true);
             this.state.soundFile = new Audio.Sound();
             await this.state.soundFile.loadAsync({ uri:  online_song});
+            this.state.soundFile.playAsync();
+            this.state.isPlaying = true;
             // await this.soundFile.playAsync();
             
 
