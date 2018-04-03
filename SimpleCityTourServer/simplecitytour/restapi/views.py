@@ -37,9 +37,9 @@ from django.http import HttpResponse
 
 
 # these variable for checking update in client side
-imageSequence       = 1
-citySequence        = 1
-pointSequene        = 1
+imageSequence       = 2
+citySequence        = 2
+pointSequene        = 2
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny, ))
