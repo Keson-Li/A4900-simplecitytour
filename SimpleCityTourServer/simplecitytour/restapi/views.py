@@ -21,7 +21,6 @@ from rest_framework.response import Response
 
 
 from django.http import HttpResponse
-# from pydub import AudioSegment
 
 
 # @api_view(['GET', 'POST'])
@@ -119,8 +118,9 @@ def get_points(request):
 
                 img                 = ponits_in_location[j].img
                 imgPath             = BASE_DIR+img
-                if os.path.exists(file_path):
-                    with open(file_path, "rb") as image_file:
+                print(imgPath)
+                if os.path.exists(imgPath):
+                    with open(imgPath, "rb") as image_file:
                         encoded_string = base64.b64encode(image_file.read())
                 else:
                     with open(BASE_DIR+"/imgs/No_img.jpg", "rb") as image_file:
