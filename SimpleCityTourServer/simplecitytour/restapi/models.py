@@ -53,7 +53,7 @@ class Location(models.Model):
 	description = models.CharField(max_length=1000,null=True)
 	polygon = models.OneToOneField(Polygon, models.PROTECT ,null=True)
 	zoom = models.IntegerField(null=True)
-	img = models.CharField(max_length=255,null=True)
+	img = models.CharField(max_length=255,default="/not_set")
 
 
 
@@ -72,10 +72,12 @@ class Point(models.Model):
 	lat = models.DecimalField(decimal_places=19, max_digits=23,null=True)
 	lng = models.DecimalField(decimal_places=19, max_digits=23,null=True)
 	name = models.CharField(max_length=255,null=True)
+	description = models.CharField(max_length=1000,null=True)
 	visibility =  models.BooleanField(default=True)
 	radius = models.DecimalField(decimal_places=4, max_digits=10,null=True)
 	audioFile = models.FileField(null=True, blank=True, upload_to=audioFileLocation)
 	content_type = models.CharField(max_length=255,null=True, blank=True)
+	img = models.CharField(max_length=255,null=True)
 
 
 

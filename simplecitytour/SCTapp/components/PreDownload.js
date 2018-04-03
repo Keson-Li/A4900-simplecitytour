@@ -3,13 +3,13 @@ import Storage from './StorageControl';
 import CallBackend from './CallBackend';
 
 export default class PreDownload {
-   static getImgs() {
+   static getCityImgs() {
         path = '/api/get_imgs/';
         CallBackend.get(path).then((fetch_resp) =>{
             if (fetch_resp[0]){
                 response = fetch_resp[1];
                 if (typeof JSON.parse(response._bodyText)!= "undefined") {
-                    imgInfo = JSON.parse(response._bodyText)
+                    imgInfo = JSON.parse(response._bodyText);
                     for (var key in imgInfo) {
                         if (imgInfo.hasOwnProperty(key)) {         
                             Storage.saveItem(key, imgInfo[key]);
@@ -60,7 +60,40 @@ export default class PreDownload {
             }
     
         });
-        }
+    }
+
+    static getPoints() {
+        path ='/api/get_points/';
+        console.log('Getting points from server');
+        CallBackend.get(path).then((fetch_resp) =>{
+            if (fetch_resp[0]){
+                response = fetch_resp[1] 
+                if(typeof JSON.parse(response._bodyText) != "undefined") {
+
+                    Storage.saveItem("pointSequence", JSON.parse(response._bodyText)['pointSequence']);
+                    allPoints      =    JSON.parse(response._bodyText);
+                    delete allPoints['pointSequence'];
+                    Storage.getItem('allLocations').then((locations) => {
+
+                        allCities = JSON.parse(locations);
+
+                        for(var key in allCities){
+                            allCities[key].push(allPoints[key]);
+                        }
+                        Storage.saveItem("allLocations", JSON.stringify(allCities));
+                    },(err) =>{alert('err')});
+                }
+            }else{
+                err = fetch_resp[1]
+                if (err.message = 'Network request failed'){
+                    console.log('Network failed when fetching locations.')
+        
+                } else{
+                    console.log("failed when fetching locations.")
+                }
+            }
+        });    
+    }
 
 
 }

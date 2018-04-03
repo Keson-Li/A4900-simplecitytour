@@ -16,12 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import include
 from django.urls import path
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 # from .views import Tour_cities
 from . import views
 
 urlpatterns = [
     path('login/', obtain_jwt_token),
+    path('verify_token/', verify_jwt_token),
     path('logout/', refresh_jwt_token),
     # path('testapi/', views.test_resp, name='testresp'),
     path('signup/', views.signup_user, name='login'),

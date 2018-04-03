@@ -1,1 +1,1 @@
-export default IP='http://192.168.1.71:8000';
+export default IP='http://10.224.161.145:8000';

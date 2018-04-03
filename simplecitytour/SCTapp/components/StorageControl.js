@@ -18,6 +18,15 @@ export default class Storage extends Component {
         return value
     }
 
+    static async removeItem(item) {
+      try {
+        value = await AsyncStorage.removeItem(item)
+      } catch (error) {
+        console.error('AsyncStorage error: ' + error.message);
+      }
+      return value
+  }
+
     static async compare(item1,item2) {
       try {
         value1 = await AsyncStorage.getItem(item1);

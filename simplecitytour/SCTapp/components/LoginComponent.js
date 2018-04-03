@@ -1,62 +1,204 @@
-
-
-
-// keson: how to guarantee confirm password are the same one
-
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Text,
-		 View, 
-		 StyleSheet,
-		 Button,
-		 TextInput,
-		 Image,
-		 Dimensions,
-		 ListView,
-		 } from 'react-native';
+import { Text, View, StyleSheet, Keyboard, TouchableOpacity, TextInput, Image, Dimensions, ListView, TouchableHighlight,ActivityIndicator } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
 import CallBackend from './CallBackend';
-import Storage from './StorageContorl';
+import Storage from './StorageControl';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-
-export default class CreateAccount extends Component {
-	constructor(props) {
+var inLoginPage= false;
+var rmNetworkstatus = null;
+export default class LoginComponent extends Component {
+    constructor(props) {
 		super(props);
     	this.state = { 
-			username: "keson",
-			password: "Pa$$w0rd",
-			hidePass: false,
-			textColor: "gray",
-			screenwidth: Dimensions.get('window').width
-		};
+			username: "username",
+            password: "password",
+            lastuser:null,
+            isLogout:true,
+            hasnetwork:true,
+            shownetwork:true,
+            pressed:false,
+            isReady:false,
 
-		this.login = this.login.bind(this);
-		this.saveItem = this.saveItem.bind(this);
+        };
+        this.navigate = this.props.navigation.navigate;
+        this.login = this.login.bind(this);
+        this.removeNetworkstatus = this.removeNetworkstatus.bind(this);
+        changeShownNetworkState = this.changeShownNetworkState.bind(this);
+    };
 
-	};
+    static navigationOptions = {
+        title: 'LOGIN',
+    };
 
-	// async saveItem(item, selectedValue) {
-	// 	try {
-	// 	  await AsyncStorage.setItem(item, selectedValue);
-	// 	} catch (error) {
-	// 	  console.error('AsyncStorage error: ' + error.message);
-	// 	}
-	//   }
-	  
-	
+    componentDidMount () {
+        console.log('Opening login page......');
+        inLoginPage = true;
+        this.get_user();
+    }
+    componentWillUnmount(){
+        console.log('Leaving login page......');
+        inLoginPage = false;
+        
+    }
 
-	static navigationOptions = {
-		title: 'LOG IN',
-	};
-	
+    async get_user(){
+        verify_token = null;
+        lastuser=null;
+        await Storage.getItem('username').then((name) =>{
+            console.log("Get user from database......");
+            if(name){
+                if(inLoginPage){
+                    console.log("User: " + name + " login previously.");
+                    lastuser=name;
+                    this.setState({
+                        lastuser: name,
+                        username:name,
+                    })
 
-	login() {
+                }
+                 
+            }else{
+                console.log('No user data.')
+                if(inLoginPage){
+                    this.setState({
+                        isLogin  : false,
+                        isReady : true,
+                    })
+                    this.removeNetworkstatus();
+
+
+                }
+            }
+    
+        },(err) =>{
+          console.log("Get username error.")
+        });
+
+        if(lastuser != null){
+            await Storage.getItem('token').then((resp) =>{
+                console.log("Get user token from database......");
+                if(resp){
+                    verify_token = resp;
+                }else{
+                    console.log('No user token info.')
+                    if(inLoginPage){
+                        this.setState({
+                            isLogin  : false,
+                            isReady : true,
+                        })
+                        this.removeNetworkstatus();
+                    }
+                }
+            },(err) =>{
+              console.log("Get username error.")
+            });
+        }
+
+        if(verify_token != null){
+            path ='/api/verify_token/';
+            data = {'token' : verify_token}
+            console.log('Verifying token......');
+            await CallBackend.post(path, data).then((fetch_resp) =>{
+                if (fetch_resp[0]){
+                    response = fetch_resp[1];
+                    if(typeof JSON.parse(response._bodyText)['non_field_errors'] != "undefined" && JSON.parse(response._bodyText)['non_field_errors'][0] == 'Signature has expired.'){
+                        console.log('User token expired.')
+                        if(inLoginPage){
+                            this.setState({
+                                isLogin: false,
+                                isReady:true,
+                            })
+
+                            this.removeNetworkstatus();
+                        }
+    
+                    };
+
+                    if(typeof JSON.parse(response._bodyText)['token'] != "undefined"){
+                        if(inLoginPage){
+                            console.log('Trying to login as: ' +this.state.username);
+                            this.setState({
+                                isLogin:true,
+                                // isLogout: false,
+                                isReady:true,
+                            });
+
+                            this.removeNetworkstatus();
+                        }
+
+                    }
+
+                }else{
+                    err = fetch_resp[1];
+
+
+
+                    if (err.message = 'Network request failed'){
+                        if(inLoginPage){
+                            this.setState({
+                                hasnetwork:false,
+                                // isLogin:false,
+                            }) 
+                        }  
+                        
+                    }
+                    if(inLoginPage){
+                        this.setState({
+                            isReady:true,
+                            isLogin:false,
+                        }) 
+                        this.removeNetworkstatus();
+                    }
+
+                    console.log('Error in verifying get user : '+err.message);       
+                }            
+            },(err) =>{
+                alert('Internal error.')          
+            });
+
+        }
+       
+
+
+      }
+
+    logout(){
+        console.log('User is trying to logout: ' +this.state.username);
+        Storage.removeItem("token");
+        Storage.getItem('token').then((token) =>{
+            // console.log(token);
+        },(err) =>{
+            console.log(err)
+        }); 
+        this.setState({
+            isLogout :  true,
+            isLogin  :  false,
+        })
+        this.navigate("Home");
+
+    }
+
+    login() {
+        console.log('User is trying to log in: ' +this.state.username);
+        if(inLoginPage){
+            this.setState({
+                pressed:true,
+            }) 
+        };
+        user_login = this.state.username;
 		path ='/api/login/';
 		url = IP +path;
 		data = {"username":this.state.username,"password":this.state.password};
 		CallBackend.post(path, data).then((fetch_resp) =>{
+            if(inLoginPage){
+                this.setState({
+                    pressed:false,
+                }) 
+            };
 			if (fetch_resp[0]){
 
 
@@ -71,204 +213,158 @@ export default class CreateAccount extends Component {
 
             if (typeof JSON.parse(response._bodyText)["token"] != "undefined") {
 				token = JSON.parse(response._bodyText)["token"];
-				Storage.saveItem('token', token)
+                Storage.saveItem('token', token);
+                Storage.saveItem('username', user_login);
+                this.navigate("Home");
 
-            	alert("Login Successfully.")
+            	console.log("User Login Successfully : " + this.state.username )
 			}
-
-
-
-
-
-				// console.log(response);
-			
-
 			}else{
-
-
 				err = fetch_resp[1];
 				if (err.message = 'Network request failed'){
 					alert('Network failed.')
 				} else{
 					alert("Login failed.")
-
 				}
 			}
 
 		},(err) =>{
-
-				// this block was call when err ocour when call get/post in this file
+            if(inLoginPage){
+                this.setState({
+                    pressed:false,
+                }) 
+            }
+            console.log(err.message);
+			alert("Internal error.");
 				
-		});
+        });
+    }
+
+    changeShownNetworkState(){
+        if(inLoginPage){
+            this.setState({
+                shownetwork:false
+            })
+        }
+    }
+
+    removeNetworkstatus(){
+        setTimeout(function(){changeShownNetworkState() }, 5000); 
+    }
 
 
+    render() {
+            if(! this.state.isLogin){
+                return (
+                    <View style={styles.container}>
+                        {!this.state.isReady && <Text style={{ fontSize:25,width:Dimensions.get('window').width,position:'absolute', top:0, textAlign:'center',backgroundColor:'#f0fff0'}}>Connecting to the server.....</Text>}
+                        {this.state.shownetwork && !this.state.hasnetwork && <Text style={{ fontSize:25,width:Dimensions.get('window').width,position:'absolute', top:0, textAlign:'center',backgroundColor:'#f0fff0'}}>Network Disconnect</Text>}
+                        <TextInput  style = {styles.input}
+                                    onSubmitEditing={() => this.passwordInput.focus()}
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    keyboardType='email-address'
+                                    returnKeyType="next"
+                                    placeholder={this.state.username}
+                                    placeholderTextColor='black'
+                                    ref={(el) =>{this.usernameInput = el} }
+                                    onChangeText = {(username) =>this.setState({username})}/>
+        
+                        <TextInput  style = {styles.input}
+                                    onSubmitEditing={() => this.login()}
+                                    returnKeyType="go"
+                                    placeholder={this.state.password}
+                                    placeholderTextColor='black'
+                                    secureTextEntry
+                                    ref={(pw) =>{this.passwordInput  = pw} }
+                                    onChangeText = {(password) =>this.setState({password})}/>
+        
+        
+                        <Text style= {styles.fgpw}>Forget Password?</Text>
+                        {this.state.pressed && <ActivityIndicator size="large"/>}
+                        { ! this.state.pressed && <TouchableOpacity style={styles.buttonContainer} onPress= {() =>{Keyboard.dismiss; this.login()}}> 
+                                     <Text style={styles.buttonText}>GO > </Text>
+                        </TouchableOpacity>} 
+        
+                    </View>
+                )
+
+            }else{
+                return(
+                    <View style={{ flexDirection: 'column'}}>
+                        <TouchableHighlight underlayColor="gray" onPress={() =>  this.navigate('Home')}>
+                            <View style={{flex:1, alignItems:"center", marginTop:60}}>
+                                <Image style={{
+                                    height:Dimensions.get('window').width/3-6,
+                                    width:Dimensions.get('window').width/3-6,
+                                }} source={require('../pictures/user/user.png')}/>
+                                <View>
+                                    <Text style = {{fontSize:60, alignItems:"center"}} >{this.state.lastuser}</Text>
+                                </View>
+                            </View>
+                        </TouchableHighlight>
+                        <TouchableOpacity 
+                            style={styles.button}
+                            onPress={() => this.logout()}>
+                            <Text style={{fontWeight: 'bold', fontSize: 20}}> LOG OUT </Text>
+                        </TouchableOpacity>
+                    </View>  
+                  )
+
+            }
+
+      
+        //   }else{
+        //       return(
+        //         <View style={{alignItems:'center', top:Dimensions.get('window').height/2 - 100}}>
+        //             <Text style = {{fontSize:50}}>LOADING....</Text>                      
+        //             <ActivityIndicator size="large"/>
+        //         </View>
+        //       )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		// fetch(url, {
-		//   headers: {'Content-Type': 'application/json',},
-		//   body: JSON.stringify(data),
-		//   method: 'POST',
-		// }).then((response) => {
-
-        //     if (typeof JSON.parse(response._bodyText)["non_field_errors"] != "undefined") {
-        //         if (JSON.parse(response._bodyText)["non_field_errors"][0] === "Unable to log in with provided credentials."){
-        //             alert("Invaild username or password.")
-        //         }
-        //      }
-
-        //     if (typeof JSON.parse(response._bodyText)["token"] != "undefined") {
-        //         token = JSON.parse(response._bodyText)["token"];
-		// 		this.saveItem('token', token)
-				
-		// 		// AsyncStorage.getItem('token').then((token) => {console.log(token)})
-
-        //     	alert("Login Successfully.")
-		// 	}
-			
-		// 	return
-
-		// }, (err) => { 
-		// 	if (err.message = 'Network request failed'){
-		// 		alert('Network failed.')
-
-		// 	} else{
-		// 		alert("Login failed.")
-
-		// 	}
-
-			
-		// });
-	}
-
-	_setPassword(password){
-		this.state.textColor="black";
-		this.setState({password});
-		this.state.hidePass = true;
-	}
-
-	_showPassword(){
-		this.state.hidePass = false;
-		this.setState(this.state);
-	}
-
-	_hidePassword(){
-		this.state.hidePass = true;
-		this.setState(this.state);
-	}	
-
-	render() {
-		const {navigate} = this.props.navigation;
-		return (
-			<View style={styles.container}>
-			 <Image  style={{
-        		  flex: 1,
-        		  position: "absolute"
-        		}}source={require('../pictures/hiking.jpg')}> 	
-				
-			</Image>
-
-
-
-				<View style={styles.container}>
-					<Text>Login</Text>
-
-					<View style={{flexDirection:"row",}}>
-					<Icon style={styles.searchIcon} name="user" size={30} color="white" />
-						<View style={{flex:1,}}>
-							<TextInput
-					        	style={{
-									  justifyContent: 'flex-start', backgroundColor: "white", textAlign: "left", paddingLeft: 20, margin: 20,
-									}}
-					        	onChangeText={(username) => this.setState({username})}
-					        	value={this.state.username}
-					        	selectTextOnFocus={true}
-					      	/>
-				      	</View>
-			      	</View>
-
-
-		      	<View style={{flexDirection:"row",}}>
-		      		<Icon style={styles.searchIcon} name="lock" size={35} color="white" />
-			      	<View style={{flex:1}}>
-					<TextInput
-			        	style={styles.textboxpass}
-			        	onChangeText={(password) => {this._setPassword(password);}}
-			        	value={this.state.password}
-			        	selectTextOnFocus={true}
-			        	secureTextEntry = {this.state.hidePass}
-			      	/>
-			      	</View>
-		      	</View>
-
-		      	<View style={{margin: 20}}>
-					<Icon.Button name="eye"  disabled={!this.state.hidePass} backgroundColor="#3b5998" onPressIn={() => {this._showPassword()}} onPressOut={() => {this._hidePassword()}}>
-						Show Password
-					</Icon.Button> 
-				</View>
-
-				<View style={{margin: 20}}>
-				<Icon.Button name="user-plus" backgroundColor="#00ff66" onPress={() =>{this.login()}}>
-					Login
-				</Icon.Button> 
-				</View>
-
-		      	</View>
-
-			</View>
-		)
-	}
+        //   }
+        
+    }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },	
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    input: {
+        // position:"relative",
+        // left:50,
+        height: 40,
+        backgroundColor: 'white',
+        margin: 10,
+        paddingLeft: 20,
+        padding: 10,
+        color: 'grey'
 
-  textbox:{
-  	height: 30,
-  	backgroundColor: "white",
-  	textAlign: "right",
-  	paddingRight: 20,
-  	margin: 20,
-  	color: "gray"
+    },
+    fgpw: {
+        padding: 10,
+        textAlign: 'right',
+
+    },
+    buttonContainer: {
+        backgroundColor: 'grey',
+        paddingVertical: 15
+    },
+    buttonText: {
+        color: '#fff',
+        textAlign: 'center',
+        fontWeight: '700'
+    },
+    button: {
+        top:Dimensions.get('window').width/3 + 140,
+        backgroundColor: 'yellow',
+        padding: 25,
+        marginBottom: 15,
+        marginHorizontal: 10,
+        borderRadius:20,
+        alignItems:'center',
   },
-
-  textboxpass:{
-  	height: 30,
-  	backgroundColor: "white",
-  	textAlign: "left",
-  	paddingLeft: 20,
-  	margin: 20, 
-  	color: "gray"
-  },  
-
-searchIcon: {
-    padding: 10,
-    marginTop: 10,
-},
-});
+})
