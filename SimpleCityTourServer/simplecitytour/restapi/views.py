@@ -37,9 +37,9 @@ from django.http import HttpResponse
 
 
 # these variable for checking update in client side
-imageSequence       = 8
-citySequence        = 9
-pointSequene        = 0
+imageSequence       = 1
+citySequence        = 1
+pointSequene        = 1
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny, ))
@@ -108,8 +108,9 @@ def get_points(request):
         for i in range(len(all_locations)):
             formatted_points[all_locations[i].name] = []
             ponits_in_location          = Point.objects.filter(location_id =all_locations[i].id)
-            point = {}
+            
             for j in range(len(ponits_in_location)):
+                point = {}
                 name                = ponits_in_location[j].name
                 lat                 = ponits_in_location[j].lat
                 lng                 = ponits_in_location[j].lng
