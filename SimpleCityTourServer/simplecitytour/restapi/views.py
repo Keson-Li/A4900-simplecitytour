@@ -201,19 +201,6 @@ def get_all_polygons(request):
 
     return Response(resp_list)
 
-
-
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny, ))
-def get_audio_files(request):
-    if request.method == 'GET':
-        print("in get audio")
-        print(request.headers)
-        # token = request.token
-        # user_id = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER(token)
-        # print (user_id)
-    return Response({'hello':'apiview'})
-
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny, ))
 def get_audio(request):
