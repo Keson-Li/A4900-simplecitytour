@@ -46,7 +46,7 @@ export default class PreDownload {
                     locationObject      =    JSON.parse(response._bodyText);
                     delete locationObject['citySequence'];
                     Storage.saveItem("allLocations", JSON.stringify(locationObject));
-                    console.log("All names of all locaton were saved.");
+                    console.log("All names of all locations were saved.");
                 }
             }else{
                 err = fetch_resp[1]
@@ -68,20 +68,26 @@ export default class PreDownload {
         CallBackend.get(path).then((fetch_resp) =>{
             if (fetch_resp[0]){
                 response = fetch_resp[1] 
+                console.log(response);
                 if(typeof JSON.parse(response._bodyText) != "undefined") {
 
                     Storage.saveItem("pointSequence", JSON.parse(response._bodyText)['pointSequence']);
                     allPoints      =    JSON.parse(response._bodyText);
                     delete allPoints['pointSequence'];
-                    Storage.getItem('allLocations').then((locations) => {
 
-                        allCities = JSON.parse(locations);
+                    Storage.saveItem("allPoints", JSON.stringify(allPoints));
+                    console.log("All Points info of all locations were saved.")
 
-                        for(var key in allCities){
-                            allCities[key].push(allPoints[key]);
-                        }
-                        Storage.saveItem("allLocations", JSON.stringify(allCities));
-                    },(err) =>{alert('err')});
+                    // Storage.getItem('allLocations').then((locations) => {
+
+                    //     allCities = JSON.parse(locations);
+
+                    //     for(var key in allCities){
+                    //         allCities[key].push(allPoints[key]);
+                    //         console.log('Point info were save: '+key)
+                    //     }
+                    //     Storage.saveItem("allLocations", JSON.stringify(allCities));
+                    // },(err) =>{alert('err')});
                 }
             }else{
                 err = fetch_resp[1]

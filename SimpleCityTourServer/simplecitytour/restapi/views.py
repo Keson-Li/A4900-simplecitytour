@@ -93,6 +93,8 @@ def get_all_locations(request):
         for i in range(len(all_locations)):
             all_cities[all_locations[i].name] = []
             all_cities[all_locations[i].name].append(len(Point.objects.filter(location_id= all_locations[i].id)))
+            all_cities[all_locations[i].name].append(all_locations[i].lat)
+            all_cities[all_locations[i].name].append(all_locations[i].lng)
             all_cities[all_locations[i].name].append(all_locations[i].description)
 
     return Response(all_cities)

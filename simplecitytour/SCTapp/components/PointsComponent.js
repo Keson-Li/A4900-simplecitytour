@@ -1,6 +1,9 @@
+// when no point info in alllocation--JSON.parse(locations)[name][2] = "undefined"->this.state.points will be undefined
+// when 0 point in backend
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Text, View, StyleSheet, TouchableOpacity, TextInput, Image, Dimensions, ListView, TouchableHighlight,ActivityIndicator } from 'react-native';
+import {ScrollView,Text, View, StyleSheet, TouchableOpacity, TextInput, FlatList, Image, Dimensions, ListView, TouchableHighlight,ActivityIndicator } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
@@ -13,16 +16,18 @@ export default class Points extends Component {
     constructor(props) {
 		super(props);
     	this.state = { 
-            lastuser:null,
+            cityDesc:'',
+            cityimg:'',
             isLogin:false,
             hasnetwork:true,
             isReady:false,
             points:null,
+            isReady:false,
 
         };
         this.navigate = this.props.navigation.navigate;
         this.get_points = this.get_points.bind(this);
-        this.get_points = this.get_points.bind(this);
+        this.renderPoints = this.renderPoints.bind(this);
 
     };
 
@@ -31,141 +36,88 @@ export default class Points extends Component {
     };
 
     componentDidMount () {
-        console.log('Opening point page');
-        inLoginPage = true;
-        // this.get_points();
-        this.getPoints();
+        console.log('Opening point page......');
+        inPointPage = true;
+        this.get_points();
     }
 
     componentWillUnmount(){
-        inLoginPage = false;
+        console.log('Leaving point page......');
+        inPointPage = false;
     }
 
-    async getPoints(){
+    async get_points(){
         name = this.props.navigation.state.params.cityName;
-        await Storage.getItem('allLocations').then((locations) =>{
-          this.state.points =JSON.parse(locations)[name][3];
+        await Storage.getItem('allPoints').then((points) =>{
+            if(points){
+                if(inPointPage && JSON.parse(points)[name] != "undefined"){
+                    this.setState({
+                        points:JSON.parse(points)[name],
+                        isReady: true,
+                    })
+                }
+            }
     
         },(err) =>{
           console.log("Get description error.")
         });
-        console.log(this.state.points);
     }
 
-    get_points() {
-        user_login = this.state.username;
-		path ='/api/get_points/';
-		url = IP +path;
-        // data = {"location":'Vancouver'};
-        data={};
-        console.log('Getting points from server');
-		CallBackend.post_auth(path, data).then((fetch_resp) =>{
-            console.log('retrieved info');
-			if (fetch_resp[0]){
-                response = fetch_resp[1];
-                if(response === 'No Stored Token'){
-                    this.setState({
-                        isLogin: false,
-                        isReady: true,
-                    })
-                    alert('User Not Login');
-                
-                }else{                    
-                    if (typeof JSON.parse(response._bodyText)['detail'] != "undefined") {
-                        if(JSON.parse(response._bodyText)['detail'] == 'Signature has expired.'){
-                            this.setState({
-                                isLogin: false,
-                                isReady: true,
-                            })
-                            console.log(JSON.parse(response._bodyText)['detail']);
-                            alert('Login expired');
-                        }   
-                    }else{ 
-                        if(typeof JSON.parse(response._bodyText) != "undefined") {
-                        
-
-                            // console.log(JSON.parse(response._bodyText));
-
-                            // Storage.saveItem("pointSequence", JSON.parse(response._bodyText)['pointSequence']);
-                            allPoints      =    JSON.parse(response._bodyText);
-                            delete allPoints['pointSequence'];
-                            Storage.getItem('allLocations').then((locations) => {
-
-                                allCities = JSON.parse(locations);
-
-                                for(var key in allCities){
-                                    allCities[key].push(allPoints[key]);
-                                }
-                                Storage.saveItem("allLocations", JSON.stringify(allCities));
-                            },(err) =>{alert('err')});
-                        }
-                    }
-                }
-                
-			}else{
-				err = fetch_resp[1];
-				if (err.message = 'Network request failed'){
-					alert('Network failed.')
-				} else{
-					alert("Login failed.")
-				}
-			}
-
-		},(err) =>{
-                console.log(err.message);
-				alert("Internal error.");		
+    renderPoints(){
+        let {points} = this.state;
+        items = points.map((item) =>{
+            return (
+              <TouchableHighlight underlayColor="gray" key={item.name} onPress={() =>  navigate('PreviewCity', {cityName: this.props.navigation.state.params.cityName, cityDesc:this.props.navigation.state.params.cityDesc})}>
+                  <View style={{flex:1,flexDirection: "row", borderColor:'black',borderWidth: 1,}}>
+                      <Image style={{
+                          // flex: 1,
+                          height:Dimensions.get('window').width/4,
+                          width:Dimensions.get('window').width/4,
+                          // justifyContent: "flex-start",
+                          // position: "absolute"
+                        }} source={{uri:"data:image/jpg;base64,"+item.img}}>
+                      </Image>
+                    <View style={styles.pointName}>
+                      <Text adjustsFontSizeToFit={false} style ={{fontSize:20}}>{item.name}</Text>
+                    </View>
+                  </View>
+              </TouchableHighlight>
+            )
         });
-    }
 
+
+        return (
+            <View style={styles.container}>
+                {items}
+            </View>
+        );
+    }
 
     render() {
+		return (
+			<ScrollView style={styles.scrollContainer}>
+          { this.state.isReady &&this.renderPoints()}
+          {!this.state.isReady && <View style={{alignItems:'center', top:Dimensions.get('window').height/2 - 100}}>                    
+                                    <ActivityIndicator size="large"/>
+                                </View>}  
+			</ScrollView>
+		)
+	}
 
-         return(
-            <View style={{alignItems:'center', top:Dimensions.get('window').height/2 - 100}}>
-                <Text style = {{fontSize:50}}>LOADING....</Text>                      
-                <ActivityIndicator size="large"/>
-            </View>
-        )     
-    }
 }
 
 const styles = StyleSheet.create({
+    scrollContainer:{
+        flex: 1,
+        backgroundColor:'#E3E3E3',
+      },
     container: {
         flex: 1,
         justifyContent: 'center',
     },
-    input: {
-        // position:"relative",
-        // left:50,
-        height: 40,
-        backgroundColor: 'white',
-        margin: 10,
-        paddingLeft: 20,
-        padding: 10,
-        color: 'grey'
-
+    pointName: {
+        width:Dimensions.get('window').width/4 * 3,
+        marginLeft:10,
+        justifyContent: 'center',
     },
-    fgpw: {
-        padding: 10,
-        textAlign: 'right',
-
-    },
-    buttonContainer: {
-        backgroundColor: 'grey',
-        paddingVertical: 15
-    },
-    buttonText: {
-        color: '#fff',
-        textAlign: 'center',
-        fontWeight: '700'
-    },
-    button: {
-        top:Dimensions.get('window').width/3 + 140,
-        backgroundColor: 'yellow',
-        padding: 25,
-        marginBottom: 15,
-        marginHorizontal: 10,
-        borderRadius:20,
-        alignItems:'center',
-  },
 })

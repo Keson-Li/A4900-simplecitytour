@@ -21,7 +21,7 @@ class test_user(APITestCase):
         user_obj.save()
         location1 = Location(name='Vancouver', adminuser=user_obj,lat=49.3348822230993, lng=-123.206144670191,price=3,description='test city Vancouver',polygon_id=polygo1.id)
         location1.save()
-        point1 = Point(location=location1, lat=49.287696678908, lng=-123.141949928956, name='Amazing Laughter',radius=10)
+        point1 = Point(location=location1, lat=49.287696678908, lng=-123.141949928956, name='Amazing Laughter', img='/imgs/points/AmazingL.jpg',radius=10)
         point1.save()
 
 
@@ -77,17 +77,17 @@ class test_user(APITestCase):
         path = 'api/login/'
         url  =  ip + path 
         response = self.client.post(url,data,format='json')
-        print(type(response.data['token']))
+        # print(type(response.data['token']))
 
         path3 = 'api/get_points/'
         url3 = ip + path3
         # data3 = {'token': response.data['token']}
         # jdata = json.dumps(data3)
-        data3={ 'headers': {'Content-Type': 'application/json', 'Authorization': 'JWT '+ response.data['token'] }},
-        jd = json.dumps(data3)
-        response3 = self.client.post(url3, jd,format='json')
+        # data3={ 'headers': {'Content-Type': 'application/json', 'Authorization': 'JWT '+ response.data['token'] }},
+        # jd = json.dumps(data3)
+        response3 = self.client.get(url3,format='json')
         print('point')
-        print(response3.data)
+        print(response3.data['Vancouver'][0]['name'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_audio(self):

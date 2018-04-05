@@ -42,7 +42,7 @@ export default class App extends Component {
     async updatecheck(){
         await Storage.getItem('citySequence').then((value) => {
             if (value === null){
-                console.log('No location ifno, downing from remote server....');
+                console.log('No location info, downing from remote server....');
                 PreDownload.getLocations();
             }
         });
@@ -78,7 +78,7 @@ export default class App extends Component {
             if(result){
                 console.log("Images Already the latest version.")
             }else{
-                console.log('Update image ifno, downloading from remote server....');
+                console.log('Update image info, downloading from remote server....');
                 PreDownload.getCityImgs();
             }
             
@@ -90,7 +90,7 @@ export default class App extends Component {
             if(result){
                 console.log("Points Already the latest version.")
             }else{
-                console.log('Update image info, downloading from remote server....');
+                console.log('Update point info, downloading from remote server....');
                 PreDownload.getPoints();
             }
             

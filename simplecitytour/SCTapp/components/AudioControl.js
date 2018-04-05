@@ -12,6 +12,7 @@ import { Text,
     Dimensions,
     Image,
 TouchableOpacity} from 'react-native';
+var inAudioPage = false;
 export default class AudioContorler extends Component {
     constructor(props){
         super(props);
@@ -25,8 +26,16 @@ export default class AudioContorler extends Component {
 
 
     componentDidMount () {
+        console.log('Ready to play a sound......');
+        inAudioPage = true;
         this.loadsound("filename");
-      }
+    }
+
+    componentWillUnmount(){
+        console.log('Stop playing a sound......');
+        inAudioPage=false;
+        this._onStopPressed();
+    }
 
 
     // componentWillUnmount(){
@@ -46,6 +55,7 @@ export default class AudioContorler extends Component {
         // }
         console.log("in audio");
         audio_path = '/api/getaudio/';
+
         online_song = 'https://d1qg6pckcqcdk0.cloudfront.net/country/parmalee_hc201403_05_closeyoureyes.m4a' ;
 
         // const playbackObject = await Audio.Sound.create(
@@ -61,6 +71,10 @@ export default class AudioContorler extends Component {
             // await Expo.Audio.setIsEnabledAsync(true);
             this.state.soundFile = new Audio.Sound();
             await this.state.soundFile.loadAsync({ uri:  online_song});
+            
+            // sound from CallBackend
+            // await this.state.soundFile.loadAsync({ uri:  IP+audio_path});
+            
             this.state.isLoaded = true;
             this.state.soundFile.playAsync();
             this.state.isPlaying = true;
@@ -73,29 +87,35 @@ export default class AudioContorler extends Component {
     }
 
     _onPlayPausePressed = () => {
-        if (this.state.soundFile != null) {
-          if (this.state.isPlaying) {
-            this.state.soundFile.pauseAsync();
-            this.state.isPlaying = false;
-          } else {
-            this.state.soundFile.playAsync();
-            this.state.isPlaying = true;
-          }
-        }
+        if(inAudioPage){
+            if (this.state.soundFile != null) {
+                if (this.state.isPlaying) {
+                  this.state.soundFile.pauseAsync();
+                  this.state.isPlaying = false;
+                } else {
+                  this.state.soundFile.playAsync();
+                  this.state.isPlaying = true;
+                }
+            }
+        }        
     };
 
     _onStopPressed = () => {
-        if (this.state.soundFile != null) {
-            this.state.soundFile.stopAsync();
-            this.state.isPlaying = false;
-        }
+        if(inAudioPage){
+            if (this.state.soundFile != null) {
+                this.state.soundFile.stopAsync();
+                this.state.isPlaying = false;
+            }   
+        }   
     };
 
     _onPlayPressed = () => {
-        if (! this.state.isPlaying && this.state.isLoaded) {
-          this.state.soundFile.playAsync();
-          this.state.isPlaying = true;
-        }
+        if(inAudioPage){
+            if (! this.state.isPlaying && this.state.isLoaded) {
+                this.state.soundFile.playAsync();
+                this.state.isPlaying = true;
+              }
+        }  
     };
 
 
@@ -105,8 +125,8 @@ export default class AudioContorler extends Component {
             <TouchableOpacity style={styles.stop} onPress={this._onStopPressed}>
             <Image style={{
                 // flex: 1,
-                height:Dimensions.get('window').width/5,
-                width:Dimensions.get('window').width/5,
+                height:Dimensions.get('window').width/12,
+                width:Dimensions.get('window').width/10,
                 // position: "absolute"
             }} source={require('../pictures/musicbox/stop.png')}>
             </Image>
@@ -114,8 +134,8 @@ export default class AudioContorler extends Component {
             <TouchableOpacity style={styles.pause} onPress={this._onPlayPausePressed}>
             <Image style={{
                 // flex: 1,
-                height:Dimensions.get('window').width/5,
-                width:Dimensions.get('window').width/5,
+                height:Dimensions.get('window').width/12,
+                width:Dimensions.get('window').width/10,
                 // position: "absolute"
             }} source={require('../pictures/musicbox/pause.png')}>
             </Image>
@@ -123,8 +143,8 @@ export default class AudioContorler extends Component {
             <TouchableOpacity style={styles.play} onPress={this._onPlayPressed}>
             <Image style={{
                 // flex: 1,
-                height:Dimensions.get('window').width/5,
-                width:Dimensions.get('window').width/5,
+                height:Dimensions.get('window').width/12,
+                width:Dimensions.get('window').width/10,
                 // position: "absolute"
             }} source={require('../pictures/musicbox/play.png')}>
             </Image>
@@ -153,15 +173,16 @@ const styles = StyleSheet.create({
     musicbox:{
         flex: 1,
         position: "absolute",
-        bottom:100,
+        top:20,
+        right: 20,
         alignItems: 'center',
-        backgroundColor: '#808080',
+        backgroundColor: 'rgba(153,204,204,0.6)',
         flexDirection: 'row',
     },
   
     play:{
         // position: "absolute",
-        margin:2,
+        marginTop: 2,
         alignSelf: 'flex-end'
         // flex:1,
         // flexDirection: "row",
@@ -171,9 +192,9 @@ const styles = StyleSheet.create({
   
     stop:{
         // position: "absolute",
-        margin:2,
-        alignSelf: 'flex-end'
-        // margin: 2,
+        marginRight:20,
+        alignSelf: 'flex-end',
+        marginTop: 2,
         // width:Dimensions.get('window').width/3-6,
         // height: Dimensions.get('window').width/3-6,
         // justifyContent: "center",
@@ -183,7 +204,9 @@ const styles = StyleSheet.create({
     },
     pause: {
         // position: "absolute",
-        margin:2,
+        // margin:2,
+        marginRight:20,
+        marginTop: 2,
         alignSelf: 'flex-end'
     //   position: 'absolute',
     //   top: 0,

@@ -16,7 +16,7 @@ import { Text,
      
 
 
-
+var inLocationPage= false;
 export default class Locations extends Component {
 
   constructor(props) {
@@ -32,8 +32,16 @@ export default class Locations extends Component {
   }
 
   componentDidMount () {
+    console.log('Opening location page......');
+    inLocationPage = true;
     this.get_imgs();
   }
+
+  componentWillUnmount(){
+    console.log('Leaving location page......');
+    inLocationPage = false;
+    
+}
 
 	static navigationOptions = {
 		title: 'Locations',
@@ -41,7 +49,14 @@ export default class Locations extends Component {
 
   async get_imgs(){
     await Storage.getItem('allLocations').then((locations) =>{
-      this.state.allLocations =JSON.parse(locations);
+      if(locations){
+        if(inLocationPage){
+          this.setState({
+            allLocations:JSON.parse(locations)
+          })
+        }
+      }
+      // this.state.allLocations =JSON.parse(locations);
 
     },(err) =>{
       console.log("Get locations error.")
@@ -57,12 +72,13 @@ export default class Locations extends Component {
       },(err) =>{alert('err')})
 
     }
-    this.setState({
-      imgURL:allUri,
-      ready: true
-    })
 
-
+    if(inLocationPage){
+      this.setState({
+        imgURL:allUri,
+        ready: true
+      }) 
+    }
   }
 
   format_name(name){
@@ -85,28 +101,22 @@ export default class Locations extends Component {
       name_point_dict["id"] = i++;
       name_point_dict["name"] = name;
       name_point_dict["point"] = allCities[name][0];
+      name_point_dict["description"] = allCities[name][1];
       all_name_point.push(name_point_dict);
     }
 
     items = all_name_point.map((item) =>{
       return (
-        // <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('PreviewCity', {cityName: item.name, numPoints:item.point})}>
-        <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('Points')}>
+        <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('Points', {cityName: item.name, cityDesc:item.description})}>
             <View style={styles.box}>
                 <Image style={{
-                    // flex: 1,
                     height:Dimensions.get('window').width/3,
                     width:Dimensions.get('window').width/2-6,
-                    // justifyContent: "flex-start",
-                    // position: "absolute"
                   }} source={{uri:"data:image/jpg;base64,"+this.state.imgURL[item.name]}}>
                 </Image>
               <View style={styles.container2}>
                 <Text style={{color: "black", fontSize: 20, alignSelf:'center'}}>{this.format_name(item.name)}</Text>  
                 <Text><Text style={{color: 'red'}}>{item.point}</Text> POI</Text>
-                {/* <Text style={{
-            color: "white", fontSize: 32
-            }}>{item.point}</Text> */}
               </View>
             </View>
         </TouchableHighlight>
@@ -153,21 +163,12 @@ const styles = StyleSheet.create({
     margin: 2,
     borderColor:'black',
     borderWidth: 1,
-    // marginBottom:20,
   	width:Dimensions.get('window').width/2-6,
   	height: Dimensions.get('window').width/2-6,
-  	// justifyContent: "flex-start",
   	alignItems: "center",
-    // backgroundColor: "black",
     overflow: "hidden"
   },
   container2: {
-    // flex:1,
-    // position: 'absolute',
-    // top: 0,
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
     backgroundColor:'#c9c9c9',
     width: Dimensions.get('window').width/2-6,
     height:Dimensions.get('window').width/2-6 - Dimensions.get('window').width/3,

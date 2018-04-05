@@ -14,6 +14,7 @@ import { Text,
 
 import Storage from './StorageControl';
 
+var inPreviewCityPage= false;
 export default class PreviewCity extends Component {
 
   constructor(props) {
@@ -29,8 +30,18 @@ export default class PreviewCity extends Component {
 }
 
   componentDidMount(){
+    console.log('Opening previewCity page......');
+    inPreviewCityPage = true;
     this.get_img_desc();    
   }
+
+  componentWillUnmount(){
+    console.log('Leaving previewCity page......');
+    inPreviewCityPage = false;
+    
+}
+
+
 
   static navigationOptions = ({ navigation }) => {
     const {state} = navigation;
@@ -41,18 +52,14 @@ export default class PreviewCity extends Component {
 
   async get_img_desc(){
     name = this.props.navigation.state.params.cityName;
-    await Storage.getItem('allLocations').then((locations) =>{
-      this.state.imgDescription =JSON.parse(locations)[name][1];
-
-    },(err) =>{
-      console.log("Get description error.")
-    })
-
     await Storage.getItem(name).then((value) => {
-      this.setState({
-        imgURL:value,
-        imgReady:true,
-      })
+      if(inPreviewCityPage){
+        this.setState({
+          imgURL:value,
+          imgReady:true,
+        })
+      }
+
     },(err) =>{
       console.log(err);
       alert('Error!');
@@ -85,7 +92,8 @@ export default class PreviewCity extends Component {
                           fontSize:20,
                           fontWeight: 'bold',
                           justifyContent: "center",
-            }}>{this.state.imgDescription}</Text>
+            // }}>{this.state.imgDescription}</Text>
+          }}>{this.props.navigation.state.params.cityDesc}</Text>
           </View>
   
           <View style={styles.buttonview}>
@@ -93,7 +101,7 @@ export default class PreviewCity extends Component {
                                     backgroundColor: 'blue',
                                     borderRadius:20,
                                     padding: 25,
-            }} onPress={() => navigate('CityMap')}>
+            }} onPress={() => navigate('CityMap',{cityName:this.props.navigation.state.params.cityName})}>
               <Text style={{fontWeight: 'bold', fontSize: 50}}> START TOUR </Text>
             </TouchableOpacity>  
           </View>

@@ -81,6 +81,11 @@ export default class CallBackend {
 }
 
 
+
+
+
+// call backend examples
+
 // This two function can be user when calling the backend, the format can be:
 // import CallBackend from './CallBackend';  ------------ import this class in whatever file you want to call backend
 // CallBackend.get(path).then((fetch_resp) =>{
@@ -104,3 +109,67 @@ export default class CallBackend {
         // this block was call when err ocour when call get/post in this file
         
 // });
+
+
+
+
+
+
+
+
+
+
+//get protected stuff from backend
+
+// get_stuff_with_auth_token_from_backend() {
+//     path ='/api/get_points/';  //the url path
+//     url = IP +path;
+//     data = {"key":'value'};
+//     console.log('Getting stuff from server');
+//     CallBackend.post_auth(path, data).then((fetch_resp) =>{
+//         console.log('Retrieved backend respong');
+//         if (fetch_resp[0]){
+//             response = fetch_resp[1];
+//             if(response === 'No Stored Token'){
+//                 this.setState({
+//                     isLogin: false,
+//                     isReady: true,
+//                 })
+//                 alert('User Not Login');
+            
+//             }else{                    
+//                 if (typeof JSON.parse(response._bodyText)['detail'] != "undefined") {
+//                     if(JSON.parse(response._bodyText)['detail'] == 'Signature has expired.'){
+//                         this.setState({
+//                             isLogin: false,
+//                             isReady: true,
+//                         })
+//                         console.log(JSON.parse(response._bodyText)['detail']);
+//                         alert('Login expired');
+//                     }   
+//                 }else{ 
+//                     if(typeof JSON.parse(response._bodyText) != "undefined") {
+                    
+
+//                         // console.log(JSON.parse(response._bodyText));
+//                         // the expect value from backend
+//                         backend_value      =    JSON.parse(response._bodyText);
+
+//                     }
+//                 }
+//             }
+            
+//         }else{
+//             err = fetch_resp[1];
+//             if (err.message = 'Network request failed'){
+//                 alert('Network failed.')
+//             } else{
+//                 alert("Login failed.")
+//             }
+//         }
+
+//     },(err) =>{
+//             console.log(err.message);
+//             alert("Internal error.");		
+//     });
+// }

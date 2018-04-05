@@ -1,80 +1,3 @@
-// import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
-// import { Text, View, StyleSheet } from 'react-native';
-// import MapView, { AnimatedRegion, Marker, Polygon } from 'react-native-maps';
-// import AudioContorler from './AudioControl';
-    
-    
-// export default class CityMap extends Component {
-
-//     constructor(props) {
-//         super(props);
-//         this.state = {
-//             region: {
-//                 latitude: 40.730610,
-//                 latitudeDelta: 0.2729186541296684,
-//                 longitude: 	-73.935242	,
-//                 longitudeDelta: 0.26148553937673924,
-//             },
-//             position: {
-//                 latitude: 40.730610,
-//                 latitudeDelta: 0.2729186541296684,
-//                 longitude:  -73.935242  ,
-//                 longitudeDelta: 0.26148553937673924,
-//             }
-//         };
-//         this.onRegionChange = this.onRegionChange.bind(this);
-//         console.log(this.props);
-//     }
-    
-//     componentDidMount () {
-//         // AudioContorler.play("hi");
-//       }
-    
-
-//     onRegionChange(region){
-//         console.log(region);
-//         this.setState({
-//             region
-//         });
-//     }
-
-//     render() {
-//         return (
-//             <View style = {{flex:1}}>
-//                 <View style = {{flex:1}}>
-//                     <MapView
-//                         region={this.state.region}
-//                         onRegionChange={this.onRegionChange}
-//                         style={styles.map}
-//                     >
-//                     <Marker.Animated
-//                         ref={marker => { this.marker = marker }}
-//                         coordinate={this.state.position}
-//                     />
-//                     </MapView>
-//                 </View>
-//                 <View>
-//                     <AudioContorler/>
-//                 </View>
-//             </View>
-//         );
-//     }
-// }   
-    
-// const styles = StyleSheet.create({
-//     map: {
-//         left: 0,
-//         right: 0,
-//         top: 0,
-//         bottom: 0,
-//         position: "absolute"
-//     },
-// })  
-
-
-
-
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -85,75 +8,118 @@ import {
   Dimensions,
 } from "react-native";
 import AudioContorler from './AudioControl';
-
+import Storage from './StorageControl';
 import { Components } from 'expo';
 import MapView from "react-native-maps";
 
-const Images = [
-  { uri: "https://i.imgur.com/e7NQgvC.jpg" },
-  { uri: "https://i.imgur.com/dRk5pzD.jpg" },
-  { uri: "https://i.imgur.com/egT3oY3.jpg" },
-  { uri: "https://i.imgur.com/Xp8xlyr.jpg" }
-]
-
 const { width, height } = Dimensions.get("window");
-
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
-
+var inMapPage=false;
 export default class screens extends Component {
-  state = {
-    markers: [
-      {
-        coordinate: {
-          latitude: 49.2734,
-          longitude: -123.1038,
-        },
-        title: "Scince World",
-        description: "Point of Interest #1",
-        image: Images[0],
+  constructor(props) {
+    super(props);
+    this.state = { 
+      imgURL: {},
+      cityName: "none",
+      points: "none",
+      isPointReady: false,
+      allLocations:"",
+      isReady: false,
+      // region:{},
+      region:{
+        latitude: 49.2827,
+        longitude: -123.1207,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.040142817690068,
       },
-      {
-        coordinate: {
-          latitude: 49.2828,
-          longitude: -123.1067,
-        },
-        title: "Gastown",
-        description: "Point of Interest #2",
-        image: Images[1],
-      },
-      {
-        coordinate: {
-          latitude: 49.2888,
-          longitude: -123.1111,
-        },
-        title: "Canada Place",
-        description: "Point of Interest #3",
-        image: Images[2],
-      },
-      {
-        coordinate: {
-          latitude: 49.2699,
-          longitude: -123.1248,
-        },
-        title: "False Creek",
-        description: "Point of Interest #4",
-        image: Images[3],
-      },
-    ],
-    region: {
-      latitude: 49.2827,
-      longitude: -123.1207,
-      latitudeDelta: 0.1,
-      longitudeDelta: 0.040142817690068,
-    },
-  };
+      isReginReady:false,
+      markers:[],
 
-  componentWillMount() {
-    this.index = 0;
+      currentIndex:0,
+    };
     this.animation = new Animated.Value(0);
+
+    navigate = this.props.navigation.navigate;
+    this.animation_config = this.animation_config.bind(this);
+    this.get_points = this.get_points.bind(this);
+
   }
+    
   componentDidMount() {
+    console.log('Opening map page......');
+    inMapPage=true;
+    this.animation_config();
+    this.get_points();
+  }
+  componentWillUnmount(){
+    console.log('Leaving map page......');
+    inMapPage = false;
+    
+}
+
+  async get_points(){
+    name = this.props.navigation.state.params.cityName;
+    console.log('city name is : ' + name);
+    await Storage.getItem('allLocations').then((locations) =>{
+      // not going into this block before updating backend
+      if(false && locations){
+        if(inMapPage){
+          lat=JSON.parse(locations)[name][1];
+          lng=JSON.parse(locations)[name][2];
+          // console.log('the region is ');
+          // console.log(JSON.parse(locations)[name][1]);
+          // console.log(typeof JSON.parse(locations)[name]);
+          this.setState({
+            region:{
+              latitude: lat,
+              longitude: lng,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.040142817690068,
+            },
+            isReginReady:true,
+          })
+        }
+      }
+
+    },(err) =>{
+      console.log("Get city GPS location... error.")
+    })
+
+    await Storage.getItem('allPoints').then((points) =>{
+        if(points){
+            if(inMapPage && JSON.parse(points)[name] != "undefined"){
+              allPoints= JSON.parse(points)[name];
+              allMarks=[];
+              allPoints.map((item) =>{
+                oneMark={
+                  coordinate: {
+                    latitude: item.lat,
+                    longitude: item.lng,
+                  },
+                  title: item.name,
+                  description: item.description,
+                  image: item.img,
+                  radius:item.radius,
+                }
+
+                allMarks.push(oneMark);
+
+              })
+
+              this.setState({
+                markers:allMarks,
+                isPointReady: true,
+              })
+            }
+        }
+
+    },(err) =>{
+      console.log("Get description error.")
+    });
+}
+
+  animation_config(){
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
@@ -167,8 +133,8 @@ export default class screens extends Component {
 
       clearTimeout(this.regionTimeout);
       this.regionTimeout = setTimeout(() => {
-        if (this.index !== index) {
-          this.index = index;
+        if (this.state.currentIndex !== index) {
+          this.state.currentIndex = index;
           const { coordinate } = this.state.markers[index];
           this.map.animateToRegion(
             {
@@ -181,7 +147,9 @@ export default class screens extends Component {
         }
       }, 10);
     });
+
   }
+
 
   render() {
     const interpolations = this.state.markers.map((marker, index) => {
@@ -212,11 +180,7 @@ export default class screens extends Component {
         >
           {this.state.markers.map((marker, index) => {
             const scaleStyle = {
-              transform: [
-                {
-                  scale: interpolations[index].scale,
-                },
-              ],
+              transform: [{ scale: interpolations[index].scale,},],
             };
             const opacityStyle = {
               opacity: interpolations[index].opacity,
@@ -237,35 +201,27 @@ export default class screens extends Component {
           showsHorizontalScrollIndicator={false}
           snapToInterval={CARD_WIDTH}
           onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    x: this.animation,
-                  },
-                },
-              },
-            ],
+            [{ nativeEvent: {contentOffset: {x: this.animation}}}],
             { useNativeDriver: true }
           )}
           style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-        >
-          {this.state.markers.map((marker, index) => (
-            <View style={styles.card} key={index}>
-              <Image
-                source={marker.image}
-                style={styles.cardImage}
-                resizeMode="cover"
-              />
-              <View style={styles.textContent}>
-                <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
-                <Text numberOfLines={1} style={styles.cardDescription}>
-                  {marker.description}
-                </Text>
+          contentContainerStyle={styles.endPadding}>
+
+            {this.state.markers.map((marker, index) => (
+              <View style={styles.card} key={index}>
+                <Image
+                  // source={marker.image}
+                  source={{uri:"data:image/jpg;base64,"+marker.image}}
+                  style={styles.cardImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.textContent}>
+                  <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
+                  <Text numberOfLines={1} style={styles.cardDescription}>{marker.description}</Text>
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+
         </Animated.ScrollView>
         <AudioContorler/>
 
