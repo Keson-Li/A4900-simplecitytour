@@ -1,80 +1,3 @@
-// import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
-// import { Text, View, StyleSheet } from 'react-native';
-// import MapView, { AnimatedRegion, Marker, Polygon } from 'react-native-maps';
-// import AudioContorler from './AudioControl';
-    
-    
-// export default class CityMap extends Component {
-
-//     constructor(props) {
-//         super(props);
-//         this.state = {
-//             region: {
-//                 latitude: 40.730610,
-//                 latitudeDelta: 0.2729186541296684,
-//                 longitude: 	-73.935242	,
-//                 longitudeDelta: 0.26148553937673924,
-//             },
-//             position: {
-//                 latitude: 40.730610,
-//                 latitudeDelta: 0.2729186541296684,
-//                 longitude:  -73.935242  ,
-//                 longitudeDelta: 0.26148553937673924,
-//             }
-//         };
-//         this.onRegionChange = this.onRegionChange.bind(this);
-//         console.log(this.props);
-//     }
-    
-//     componentDidMount () {
-//         // AudioContorler.play("hi");
-//       }
-    
-
-//     onRegionChange(region){
-//         console.log(region);
-//         this.setState({
-//             region
-//         });
-//     }
-
-//     render() {
-//         return (
-//             <View style = {{flex:1}}>
-//                 <View style = {{flex:1}}>
-//                     <MapView
-//                         region={this.state.region}
-//                         onRegionChange={this.onRegionChange}
-//                         style={styles.map}
-//                     >
-//                     <Marker.Animated
-//                         ref={marker => { this.marker = marker }}
-//                         coordinate={this.state.position}
-//                     />
-//                     </MapView>
-//                 </View>
-//                 <View>
-//                     <AudioContorler/>
-//                 </View>
-//             </View>
-//         );
-//     }
-// }   
-    
-// const styles = StyleSheet.create({
-//     map: {
-//         left: 0,
-//         right: 0,
-//         top: 0,
-//         bottom: 0,
-//         position: "absolute"
-//     },
-// })  
-
-
-
-
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -84,7 +7,6 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import AudioContorler from './AudioControl';
 
 import { Components } from 'expo';
 import MapView from "react-native-maps";
@@ -106,45 +28,45 @@ export default class screens extends Component {
     markers: [
       {
         coordinate: {
-          latitude: 49.2734,
-          longitude: -123.1038,
+          latitude: 45.524548,
+          longitude: -122.6749817,
         },
         title: "Scince World",
-        description: "Point of Interest #1",
+        description: "This is the best place in Portland",
         image: Images[0],
       },
       {
         coordinate: {
-          latitude: 49.2828,
-          longitude: -123.1067,
+          latitude: 45.524698,
+          longitude: -122.6655507,
         },
-        title: "Gastown",
-        description: "Point of Interest #2",
+        title: "Second Best Place",
+        description: "This is the second best place in Portland",
         image: Images[1],
       },
       {
         coordinate: {
-          latitude: 49.2888,
-          longitude: -123.1111,
+          latitude: 45.5230786,
+          longitude: -122.6701034,
         },
-        title: "Canada Place",
-        description: "Point of Interest #3",
+        title: "Third Best Place",
+        description: "This is the third best place in Portland",
         image: Images[2],
       },
       {
         coordinate: {
-          latitude: 49.2699,
-          longitude: -123.1248,
+          latitude: 45.521016,
+          longitude: -122.6561917,
         },
-        title: "False Creek",
-        description: "Point of Interest #4",
+        title: "Fourth Best Place",
+        description: "This is the fourth best place in Portland",
         image: Images[3],
       },
     ],
     region: {
-      latitude: 49.2827,
-      longitude: -123.1207,
-      latitudeDelta: 0.1,
+      latitude: 45.52220671242907,
+      longitude: -122.6653281029795,
+      latitudeDelta: 0.04864195044303443,
       longitudeDelta: 0.040142817690068,
     },
   };
@@ -267,8 +189,6 @@ export default class screens extends Component {
             </View>
           ))}
         </Animated.ScrollView>
-        <AudioContorler/>
-
       </View>
     );
   }

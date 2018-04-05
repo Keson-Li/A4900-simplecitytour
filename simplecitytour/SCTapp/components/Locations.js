@@ -65,6 +65,14 @@ export default class Locations extends Component {
 
   }
 
+  format_name(name){
+    if (name.includes(',')){
+      index = name.indexOf(',');
+      return name.substring(0,index)
+    }
+    return name
+  }
+
 
   renderCities() {
     var allCities = this.state.allLocations;
@@ -82,22 +90,23 @@ export default class Locations extends Component {
 
     items = all_name_point.map((item) =>{
       return (
-        <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('PreviewCity', {cityName: item.name, numPoints:item.point})}>
+        // <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('PreviewCity', {cityName: item.name, numPoints:item.point})}>
+        <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('Points')}>
             <View style={styles.box}>
                 <Image style={{
-                    flex: 1,
-                    height:Dimensions.get('window').width/3-6,
-                    width:Dimensions.get('window').width/3-6,
+                    // flex: 1,
+                    height:Dimensions.get('window').width/3,
+                    width:Dimensions.get('window').width/2-6,
+                    // justifyContent: "flex-start",
                     // position: "absolute"
                   }} source={{uri:"data:image/jpg;base64,"+this.state.imgURL[item.name]}}>
                 </Image>
               <View style={styles.container2}>
-                <Text style={{
-            color: "orange", fontSize: 26
-            }}>{item.name}</Text>
-                <Text style={{
+                <Text style={{color: "black", fontSize: 20, alignSelf:'center'}}>{this.format_name(item.name)}</Text>  
+                <Text><Text style={{color: 'red'}}>{item.point}</Text> POI</Text>
+                {/* <Text style={{
             color: "white", fontSize: 32
-            }}>{item.point}</Text>
+            }}>{item.point}</Text> */}
               </View>
             </View>
         </TouchableHighlight>
@@ -129,7 +138,8 @@ export default class Locations extends Component {
 
 const styles = StyleSheet.create({
   scrollContainer:{
-  	flex: 1,
+    flex: 1,
+    backgroundColor:'#E3E3E3',
   },
 
   container:{
@@ -140,20 +150,27 @@ const styles = StyleSheet.create({
   },
 
   box:{
-  	margin: 2,
-  	width:Dimensions.get('window').width/3-6,
-  	height: Dimensions.get('window').width/3-6,
-  	justifyContent: "center",
+    margin: 2,
+    borderColor:'black',
+    borderWidth: 1,
+    // marginBottom:20,
+  	width:Dimensions.get('window').width/2-6,
+  	height: Dimensions.get('window').width/2-6,
+  	// justifyContent: "flex-start",
   	alignItems: "center",
-    backgroundColor: "black",
+    // backgroundColor: "black",
     overflow: "hidden"
   },
   container2: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0, 
+    // flex:1,
+    // position: 'absolute',
+    // top: 0,
+    // bottom: 0,
+    // left: 0,
+    // right: 0,
+    backgroundColor:'#c9c9c9',
+    width: Dimensions.get('window').width/2-6,
+    height:Dimensions.get('window').width/2-6 - Dimensions.get('window').width/3,
     justifyContent: 'center',
     alignItems: 'center',
   },

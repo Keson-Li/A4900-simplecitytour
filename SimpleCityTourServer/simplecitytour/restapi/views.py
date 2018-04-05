@@ -21,7 +21,6 @@ from rest_framework.response import Response
 
 
 from django.http import HttpResponse
-from pydub import AudioSegment
 
 
 # @api_view(['GET', 'POST'])
@@ -38,8 +37,9 @@ from pydub import AudioSegment
 
 
 # these variable for checking update in client side
-imageSequence       = 8
-citySequence    = 9
+imageSequence       = 2
+citySequence        = 2
+pointSequene        = 2
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny, ))
@@ -50,7 +50,7 @@ def signup_user(request):
         allowed_chars = set('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-')
 
         #verify username and password, delete trailing whitespaces
-        if len(request.data['username'].rstrip()) <5 or len(request.data['password'].rstrip())<6 or not set(request.data['username'].rstrip()).issubset(allowed_chars) :
+        if len(request.data['username'].rstrip()) <5 or len(request.data['password'].rstrip())<6 or not set(request.data['username'].rstrip()).issubset(allowed_chars) or request.data['username'].rstrip().lower() =='username' or request.data['password'].rstrip().lower() == 'password' :
             return Response({'failed':'invaild_username_or_password'})
 
         try:
@@ -63,7 +63,7 @@ def signup_user(request):
             if ex.args[0] == 'UNIQUE constraint failed: auth_user.username':
                 print('User: '+request.data['username'].rstrip()+ 'attemp to register an existing username')
                 return Response({'failed':'username existed'})
-
+            print(ex)
             return Response({'failed':'unknown'})
 
         print('User: '+request.data['username']+ 'signup successfully.')
@@ -77,7 +77,7 @@ def signup_user(request):
 @permission_classes((permissions.AllowAny, ))
 def check_sequence(request):
     if request.method == 'GET':
-        backendSequences          = {'serverCitySequence': str(citySequence),'serverImageSequence':str(imageSequence)}
+        backendSequences          = {'serverCitySequence': str(citySequence),'serverImageSequence':str(imageSequence),'serverPointSequence':str(pointSequene)}
     return Response(backendSequences)
 
 
@@ -98,19 +98,42 @@ def get_all_locations(request):
     return Response(all_cities)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes((permissions.AllowAny, ))
 def get_points(request):
-    if request.method == 'POST':
-        location_name       = json.loads(request.body)['location']
-        points_in_city      = Point.objects.filter(location_id =Location.objects.get(name = location_name).id )
-        formatted_points     = {}
-        for i in range(len(points_in_city)):
-            formatted_points[i] =[]
-            formatted_points[i].append(formatted_points[i].name)
-            formatted_points[i].append(formatted_points[i].lng)
-            formatted_points[i].append(formatted_points[i].lat)
-            formatted_points[i].append(formatted_points[i].radius)
+    if request.method == 'GET':
+        all_locations           = Location.objects.all()
+        all_points              = Point.objects.all()
+        formatted_points        = {'pointSequence': str(pointSequene)}
+        for i in range(len(all_locations)):
+            formatted_points[all_locations[i].name] = []
+            ponits_in_location          = Point.objects.filter(location_id =all_locations[i].id)
+            
+            for j in range(len(ponits_in_location)):
+                point = {}
+                name                = ponits_in_location[j].name
+                lat                 = ponits_in_location[j].lat
+                lng                 = ponits_in_location[j].lng
+                description         = ponits_in_location[j].description
+                radius              = ponits_in_location[j].radius
+
+                img                 = ponits_in_location[j].img
+                imgPath             = BASE_DIR+img
+                print(imgPath)
+                if os.path.exists(imgPath):
+                    with open(imgPath, "rb") as image_file:
+                        encoded_string = base64.b64encode(image_file.read())
+                else:
+                    with open(BASE_DIR+"/imgs/No_img.jpg", "rb") as image_file:
+                        encoded_string = base64.b64encode(image_file.read())
+
+                point['name']         = name
+                point['lat']          = lat
+                point['lng']          = lng
+                point['description']  = description
+                point['radius']       = radius
+                point['img']          = encoded_string
+                formatted_points[all_locations[i].name].append(point)
     return Response(formatted_points)
 
 
@@ -179,25 +202,12 @@ def get_all_polygons(request):
 
     return Response(resp_list)
 
-
-
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny, ))
-def get_audio_files(request):
-    if request.method == 'GET':
-        print("in get audio")
-        print(request.headers)
-        # token = request.token
-        # user_id = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER(token)
-        # print (user_id)
-    return Response({'hello':'apiview'})
-
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny, ))
 def get_audio(request):
     if request.method == 'GET':
         # some mp3 is not support for ios
-        file_path = BASE_DIR+'\\audio\\1\\4\\3.mp3'
+        file_path = BASE_DIR+'/audio/1/4/3.mp3'
         if os.path.exists(file_path):
             # print(file_path)
             # sound = AudioSegment.from_mp3(file_path)

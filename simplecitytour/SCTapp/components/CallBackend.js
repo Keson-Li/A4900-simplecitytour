@@ -1,4 +1,6 @@
 import IP from './IPaddr';
+import Storage from './StorageControl';
+
 export default class CallBackend {
     static async post(path, data){
         var response   = [true] ;
@@ -16,7 +18,44 @@ export default class CallBackend {
             //   resp = err.message;
           });
 
-          console.log(response);
+        //   console.log(response);
+
+          return response
+
+    }
+
+
+    static async post_auth(path, data){
+        var response   = [true] ;
+        url = IP + path;
+        auth_token = null;
+
+        await Storage.getItem('token').then((resp) =>{
+            if(resp){
+                auth_token = resp;
+            }
+        }, (err) =>{
+            console.log('Geting token from database...Error!');
+            console.log(err.message);
+        });
+
+        if(auth_token != null){
+            await fetch(url, {
+                headers: {'Content-Type': 'application/json', 'Authorization': 'JWT '+ auth_token },
+                body: JSON.stringify(data),
+                method: 'POST',
+            }).then((backend_resp) => {
+                response.push(backend_resp);          
+            }, (err) => { 
+                  response[0] = false;
+                  response.push(err);
+                //   resp = err.message;
+            });
+        }else{
+            response.push('No Stored Token');
+
+        }
+        //   console.log(response);
 
           return response
 

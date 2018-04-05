@@ -18,6 +18,7 @@ export default class AudioContorler extends Component {
         this.state = {
             soundFile : null,
             isPlaying : false,
+            isLoaded:false,
         }
     }
      
@@ -26,14 +27,16 @@ export default class AudioContorler extends Component {
     componentDidMount () {
         this.loadsound("filename");
       }
-    componentWillUnmount(){
-        if (this.state.soundFile != null) {
-            this.state.soundFile.stopAsync();
-            this.state.isPlaying = false;
-            this.soundFile = null;
-        }
 
-    }
+
+    // componentWillUnmount(){
+    //     if (this.state.soundFile != null) {
+    //         this.state.soundFile.stopAsync();
+    //         this.state.isPlaying = false;
+    //         this.soundFile = null;
+    //     }
+
+    // }
 
     async loadsound(filename){
         // var all_audio = {
@@ -58,6 +61,7 @@ export default class AudioContorler extends Component {
             // await Expo.Audio.setIsEnabledAsync(true);
             this.state.soundFile = new Audio.Sound();
             await this.state.soundFile.loadAsync({ uri:  online_song});
+            this.state.isLoaded = true;
             this.state.soundFile.playAsync();
             this.state.isPlaying = true;
             // await this.soundFile.playAsync();
@@ -78,21 +82,21 @@ export default class AudioContorler extends Component {
             this.state.isPlaying = true;
           }
         }
-      };
+    };
 
     _onStopPressed = () => {
         if (this.state.soundFile != null) {
             this.state.soundFile.stopAsync();
             this.state.isPlaying = false;
         }
-      };
+    };
 
-      _onPlayPressed = () => {
-        if (! this.state.isPlaying) {
+    _onPlayPressed = () => {
+        if (! this.state.isPlaying && this.state.isLoaded) {
           this.state.soundFile.playAsync();
           this.state.isPlaying = true;
         }
-      };
+    };
 
 
     render() {
