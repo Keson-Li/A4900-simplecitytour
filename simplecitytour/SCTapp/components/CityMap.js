@@ -63,7 +63,7 @@ export default class screens extends Component {
     console.log('city name is : ' + name);
     await Storage.getItem('allLocations').then((locations) =>{
       // not going into this block before updating backend
-      if(false && locations){
+      if(locations){
         if(inMapPage){
           lat=JSON.parse(locations)[name][1];
           lng=JSON.parse(locations)[name][2];

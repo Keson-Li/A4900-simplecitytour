@@ -101,7 +101,7 @@ export default class Locations extends Component {
       name_point_dict["id"] = i++;
       name_point_dict["name"] = name;
       name_point_dict["point"] = allCities[name][0];
-      name_point_dict["description"] = allCities[name][1];
+      name_point_dict["description"] = allCities[name][3];
       all_name_point.push(name_point_dict);
     }
 

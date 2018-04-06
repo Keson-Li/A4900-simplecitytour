@@ -24,6 +24,7 @@ export default class LoginComponent extends Component {
             isReady:false,
 
         };
+        this.goBack  = this.props.navigation.goBack;
         this.navigate = this.props.navigation.navigate;
         this.login = this.login.bind(this);
         this.removeNetworkstatus = this.removeNetworkstatus.bind(this);
@@ -178,7 +179,7 @@ export default class LoginComponent extends Component {
             isLogout :  true,
             isLogin  :  false,
         })
-        this.navigate("Home");
+        this.goBack(null);
 
     }
 
@@ -215,7 +216,7 @@ export default class LoginComponent extends Component {
 				token = JSON.parse(response._bodyText)["token"];
                 Storage.saveItem('token', token);
                 Storage.saveItem('username', user_login);
-                this.navigate("Home");
+                this.goBack(null);
 
             	console.log("User Login Successfully : " + this.state.username )
 			}
@@ -292,7 +293,7 @@ export default class LoginComponent extends Component {
             }else{
                 return(
                     <View style={{ flexDirection: 'column'}}>
-                        <TouchableHighlight underlayColor="gray" onPress={() =>  this.navigate('Home')}>
+                        <TouchableHighlight underlayColor="gray" onPress={() =>  this.goBack(null)}>
                             <View style={{flex:1, alignItems:"center", marginTop:60}}>
                                 <Image style={{
                                     height:Dimensions.get('window').width/3-6,

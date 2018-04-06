@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Text, View, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Button, StyleSheet, Image, TouchableOpacity,Dimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -16,7 +16,7 @@ export default class HomeScreenComponent extends Component {
             <View style={styles.container}>
 
                 <Image
-                    style={{width: 500, height: 300, marginBottom: 20}}
+                    style={{width: Dimensions.get('window').width, height: Dimensions.get('window').height/2.5, marginBottom: 20}}
                     source={require('./img/tour.jpeg')} 
                 />
 
