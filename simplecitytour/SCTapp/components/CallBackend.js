@@ -2,6 +2,8 @@ import IP from './IPaddr';
 import Storage from './StorageControl';
 
 export default class CallBackend {
+
+    // when you want to fire a post request without a jwt token
     static async post(path, data){
         var response   = [true] ;
         url = IP + path;
@@ -15,16 +17,13 @@ export default class CallBackend {
           }, (err) => { 
               response[0] = false;
               response.push(err);
-            //   resp = err.message;
           });
-
-        //   console.log(response);
 
           return response
 
     }
 
-
+// When you want to fire a post request with a jwt token: for endpoints that need to be authtication
     static async post_auth(path, data){
         var response   = [true] ;
         url = IP + path;
@@ -49,21 +48,20 @@ export default class CallBackend {
             }, (err) => { 
                   response[0] = false;
                   response.push(err);
-                //   resp = err.message;
             });
         }else{
             response.push('No Stored Token');
 
         }
-        //   console.log(response);
 
           return response
 
     }
 
+
+    // when you want to fire a get request 
     static async get(path){
-        // var resolve = true;
-        // var resp;
+
         var response   = [true] ;
         url = IP + path;
         await fetch(url, {
@@ -75,6 +73,8 @@ export default class CallBackend {
               response[0] = false;
               response.push(err.message);
           });
+
+        //   the format of the data were returned: ['boolean','real response from backend'].
           return response
 
     }
@@ -86,29 +86,37 @@ export default class CallBackend {
 
 // call backend examples
 
-// This two function can be user when calling the backend, the format can be:
+// These functions can be user when calling the backend, the format can be:
+
 // import CallBackend from './CallBackend';  ------------ import this class in whatever file you want to call backend
-// CallBackend.get(path).then((fetch_resp) =>{
-//     if (fetch_resp[0]){
+// import IP from './IPaddr';
+// example_get_request(){
+//     path ='/api/get_stuff/';  //the url path
+//     url = IP +path;
+
+    // CallBackend.get(path).then((fetch_resp) =>{
+    //     if (fetch_resp[0]){
 
 
-//       response = fetch_resp[1]-----------------------the real response from backend
+    //       response = fetch_resp[1]-----------------------the real response from backend
 
-        // console.log(response);
-    
-
-//     }else{
-
-//       err = fetch_resp[1]------------------------------real err message from backend
-
-
-//     }
-
-//   },(err) =>{
-
-        // this block was call when err ocour when call get/post in this file
+            // console.log(response);
         
-// });
+
+    //     }else{
+
+    //       err = fetch_resp[1]------------------------------real err message from backend
+
+
+    //     }
+
+    //   },(err) =>{
+
+            // this block was call when err ocour when call get/post in this file
+            
+    // });
+
+// }
 
 
 
@@ -117,9 +125,7 @@ export default class CallBackend {
 
 
 
-
-
-//get protected stuff from backend
+//get protected stuff from backend example:
 
 // get_stuff_with_auth_token_from_backend() {
 //     path ='/api/get_points/';  //the url path

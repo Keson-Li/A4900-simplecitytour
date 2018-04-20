@@ -29,6 +29,7 @@ export default class Locations extends Component {
       ready: false,
     };
     navigate = this.props.navigation.navigate;
+    Text.defaultProps.allowFontScaling=false;
   }
 
   componentDidMount () {
@@ -101,13 +102,24 @@ export default class Locations extends Component {
       name_point_dict["id"] = i++;
       name_point_dict["name"] = name;
       name_point_dict["point"] = allCities[name][0];
+      name_point_dict["lat"] = allCities[name][1];
+      name_point_dict["lng"] = allCities[name][2];
       name_point_dict["description"] = allCities[name][3];
       all_name_point.push(name_point_dict);
     }
 
-    items = all_name_point.map((item) =>{
+    items = all_name_point.sort(function(a,b){
+      // sort cities by name
+      var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
+      if (nameA < nameB) //sort string decending
+          return 1 
+      if (nameA > nameB)
+          return -1
+      return 0 //default return value (no sorting)
+
+    }).map((item) =>{
       return (
-        <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('Points', {cityName: item.name, cityDesc:item.description})}>
+        <TouchableHighlight underlayColor="gray" key={item.id} onPress={() =>  navigate('PointTypes', {cityName: item.name, cityDesc:item.description, cityLat:item.lat, cityLng:item.lng})}>
             <View style={styles.box}>
                 <Image style={{
                     height:Dimensions.get('window').width/3,
@@ -125,6 +137,7 @@ export default class Locations extends Component {
 
 
     if (this.state.ready){
+
       return (
         <View style={styles.container}>
           

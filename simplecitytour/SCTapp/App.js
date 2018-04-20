@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 import MainScreenComponent from './components/MainScreenComponent';
-import TourLocationsComponent from './components/TourLocationsComponent';
 import SignupComponent from './components/SignupComponent';
 
 // import LoginComponent from './LoginComponent';
@@ -17,6 +16,7 @@ import PreDownload from "./components/PreDownload";
 import Storage  from "./components/StorageControl";
 import PreCkeck from './components/PreCheck';
 import AudioControl from './components/AudioControl';
+import PointTypes from './components/PointTypes'
 
 
 
@@ -28,14 +28,24 @@ export const SimpleCityTours = StackNavigator({
     PreviewCity:{screen: PreviewCity},
     CityMap:{screen: CityMap} ,
     Points:{screen:Points},
+    PointTypes:{screen:PointTypes}
 },
 
 );
 
 export default class App extends Component {
+    // constructor(props){
+    //     super(props);
+    //     Text.defaultProps.allowFontScaling=false;
+    // }
     componentDidMount(){
+        //download serverSequence
+        // Storage.clearAllData();
         PreCkeck.checkUpdate();
+
         Storage.getallkey();
+        
+        //compare client side sequence and server side sequence
         this.updatecheck();
     }
 
@@ -60,6 +70,13 @@ export default class App extends Component {
                 PreDownload.getPoints();
             }
         });
+
+        // await Storage.getItem('typeSequene').then((value) => {
+        //     if (value === null){
+        //         console.log('No local types info, downing from remote server....');
+        //         PreDownload.getTypes();
+        //     }
+        // });
 
         await Storage.compare('citySequence', 'serverCitySequence').then((result) =>{
             if(result){
@@ -97,6 +114,18 @@ export default class App extends Component {
         },(err) =>{
             console.log('Comparing imageSequence.....Error!')
         });
+
+        // await Storage.compare('typeSequene', 'serverTypeSequene').then((result) =>{
+        //     if(result){
+        //         console.log("Types Already the latest version.")
+        //     }else{
+        //         console.log('Update types info, downloading from remote server....');
+        //         PreDownload.getTypes();
+        //     }
+            
+        // },(err) =>{
+        //     console.log('Comparing imageSequence.....Error!')
+        // });
 
 
 

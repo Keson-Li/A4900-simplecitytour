@@ -292,13 +292,15 @@ export default class LoginComponent extends Component {
 
             }else{
                 return(
-                    <View style={{ flexDirection: 'column'}}>
+                    <View style={{flex:1, flexDirection: 'column', backgroundColor:'white'}}>
                         <TouchableHighlight underlayColor="gray" onPress={() =>  this.goBack(null)}>
-                            <View style={{flex:1, alignItems:"center", marginTop:60}}>
+                            
+                            <View style={{flex:1, alignItems:"center",flexDirection: 'column'}}>
                                 <Image style={{
                                     height:Dimensions.get('window').width/3-6,
                                     width:Dimensions.get('window').width/3-6,
-                                }} source={require('../pictures/user/user.png')}/>
+                                    marginTop:70
+                                }} source={require('../pictures/user/user.gif')}/>
                                 <View>
                                     <Text style = {{fontSize:60, alignItems:"center"}} >{this.state.lastuser}</Text>
                                 </View>
@@ -360,7 +362,7 @@ const styles = StyleSheet.create({
         fontWeight: '700'
     },
     button: {
-        top:Dimensions.get('window').width/3 + 140,
+        top:Dimensions.get('window').width/3 + 160,
         backgroundColor: 'yellow',
         padding: 25,
         marginBottom: 15,

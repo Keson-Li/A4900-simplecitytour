@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "SimpTour",
+    "name": "SCTapp",
     "description": "This project is really great.",
     "slug": "SCTapp",
     "privacy": "public",
@@ -8,18 +8,14 @@
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./pictures/icon/icon.png",
+    "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.bcitacit.a49002018"
-    },
-    "android":{
-      "package":"com.bcitacit.a49002018"
+      "supportsTablet": true
     }
   }
 }

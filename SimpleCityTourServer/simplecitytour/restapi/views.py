@@ -40,7 +40,6 @@ from django.http import HttpResponse
 imageSequence       = 2
 citySequence        = 2
 pointSequene        = 2
-typeSequene         = 2
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny, ))
@@ -78,7 +77,7 @@ def signup_user(request):
 @permission_classes((permissions.AllowAny, ))
 def check_sequence(request):
     if request.method == 'GET':
-        backendSequences          = {'serverCitySequence': str(citySequence),'serverImageSequence':str(imageSequence),'serverPointSequence':str(pointSequene), 'serverTypeSequence':str(typeSequene)}
+        backendSequences          = {'serverCitySequence': str(citySequence),'serverImageSequence':str(imageSequence),'serverPointSequence':str(pointSequene)}
     return Response(backendSequences)
 
 
@@ -194,11 +193,11 @@ def get_cities_imgs(request):
 
 
 @api_view(['POST'])
-@permission_classes((permissions.AllowAny, ))
+@permission_classes((permissions.IsAuthenticated, ))
 def getPointTypes(request):
     if request.method == 'POST':
         all_type = PointType.objects.all()
-        types = [typeSequene,]
+        types = []
         for i in range(len(all_type)):
             type_name = all_type[i].name
             types.append(type_name)

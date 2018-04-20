@@ -10,7 +10,8 @@ import { Text,
 		 Dimensions,
 		 Image,
      ActivityIndicator,
-     TouchableOpacity} from 'react-native';
+     TouchableOpacity,
+     Platform} from 'react-native';
 
 import Storage from './StorageControl';
 
@@ -71,38 +72,30 @@ export default class PreviewCity extends Component {
     const {navigate} = this.props.navigation;
     if (this.state.imgReady){
       return (
-        <View>
-          <View>
+        <View style={{flex:1,flexDirection: 'column',backgroundColor: '#E8FFFF',}}>
+          <View style={styles.imageview}>
             <Image style={{
-                        flex: 1,
-                        position: "absolute",
+                        // flex: 1,
+                        // position: "absolute",
                         width: Dimensions.get('window').width,
                         height: Dimensions.get('window').height/3
                       }} source={{uri:"data:image/jpg;base64,"+this.state.imgURL}} />
           </View>
-          <View style = {{
-                      flex:1,
-                      position: "absolute",
-                      top: Dimensions.get('window').height/3,
-                      width: Dimensions.get('window').width,
-                      height: Dimensions.get('window').height/3,
-                      marginTop:5,
-          }}>
-            <Text style = {{
-                          fontSize:20,
-                          fontWeight: 'bold',
-                          justifyContent: "center",
-            // }}>{this.state.imgDescription}</Text>
-          }}>{this.props.navigation.state.params.cityDesc}</Text>
+
+          <View style = {styles.textview}>
+            <Text style = {styles.text}>{this.props.navigation.state.params.cityDesc}</Text>
           </View>
   
           <View style={styles.buttonview}>
-            <TouchableOpacity style={{
-                                    backgroundColor: 'blue',
-                                    borderRadius:20,
-                                    padding: 25,
-            }} onPress={() => navigate('CityMap',{cityName:this.props.navigation.state.params.cityName})}>
-              <Text style={{fontWeight: 'bold', fontSize: 50}}> START TOUR </Text>
+            {/* <TouchableOpacity style={styles.button} 
+                              onPress={() => navigate('CityMap',{ cityName:this.props.navigation.state.params.cityName,
+                                                                  cityLat:this.props.navigation.state.params.cityLat,
+                                                                  cityLng:this.props.navigation.state.params.cityLng,})}> */}
+            <TouchableOpacity style = {styles.button} 
+                         onPress = {() => navigate('PointTypes',{ cityName:this.props.navigation.state.params.cityName,
+                                                                  cityLat:this.props.navigation.state.params.cityLat,
+                                                                  cityLng:this.props.navigation.state.params.cityLng,})}>
+              <Text style={styles.buttontext}> START TOUR </Text>
             </TouchableOpacity>  
           </View>
         </View>
@@ -120,19 +113,79 @@ export default class PreviewCity extends Component {
 }
 
 const styles = StyleSheet.create({
-  box:{
-    margin: 2,
+  imageview:{
+
+  },
+
+  textview:{
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height/3,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent:'center',
+    padding:10,
+    backgroundColor: '#E8FFFF',
   },
+
+  text:{
+    fontSize:20,
+    justifyContent: "center",
+    ...Platform.select({
+      ios: {
+        fontFamily: 'Cochin',
+      },
+      android: {
+        
+      },
+    }),
+  },
+
   buttonview:{
+    // flex:1,
     position: "absolute",
     top: Dimensions.get('window').height/3*2,
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height/5,
-    justifyContent: "center",
+    // height: Dimensions.get('window').height/3,
     alignItems: "center",
+    backgroundColor: '#E8FFFF',
+    ...Platform.select({
+      ios: {
+
+      },
+      android: {
+
+      },
+    }),
   },
+
+  button:{
+    backgroundColor: 'yellow',
+    marginBottom:35,
+    borderRadius:20,
+    padding: 25,
+    ...Platform.select({
+      ios: {
+
+      },
+      android: {
+        width:200,
+      },
+    }),
+  },
+
+  buttontext:{
+    fontWeight: 'bold',
+    
+    ...Platform.select({
+      ios: {
+        fontSize: 30
+
+      },
+      android: {
+        fontSize: 20,
+      },
+    }),
+
+  }
+
+
+
 });

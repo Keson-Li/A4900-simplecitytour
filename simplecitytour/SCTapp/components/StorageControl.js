@@ -46,5 +46,15 @@ export default class Storage extends Component {
       console.error('AsyncStorage error: ' + error.message);
     }
     return value
-}
+  }
+
+  static async clearAllData(){
+    AsyncStorage.clear().then((success)=>{
+      console.log('All AsyncStorage were clear');
+    },(err)=>{
+      console.log('Try to clear all AsyncStorage data..Error');
+    });
+  }
+
+
 }

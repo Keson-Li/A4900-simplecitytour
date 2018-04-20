@@ -1,1 +1,1 @@
-git clone https://github.com/Keson-Li/simplecitytour.git
+yarn add react-native-permissions

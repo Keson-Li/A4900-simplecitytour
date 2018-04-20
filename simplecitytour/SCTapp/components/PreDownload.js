@@ -1,6 +1,8 @@
 // import IP from './IPaddr';
 import Storage from './StorageControl';
 import CallBackend from './CallBackend';
+// import { AsyncStorage } from './C:/Users/keson/AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/react-native';
+// import { AdSupportIOS } from './C:/Users/keson/AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/react-native';
 
 export default class PreDownload {
    static getCityImgs() {
@@ -13,7 +15,7 @@ export default class PreDownload {
                     for (var key in imgInfo) {
                         if (imgInfo.hasOwnProperty(key)) {         
                             Storage.saveItem(key, imgInfo[key]);
-                            console.log("Image of \""+ key + "\" were saved.");
+                            console.log("City image of \""+ key + "\" were saved.");
                         }
                     }
                 }
@@ -31,6 +33,53 @@ export default class PreDownload {
         });
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // static getTypes() {
+    //     path = '/api/types/';
+
+        
+    //     CallBackend.get(path).then((fetch_resp) =>{
+    //         if (fetch_resp[0]){
+    //             response = fetch_resp[1];
+    //             console.log(response);
+    //             if (false && typeof JSON.parse(response._bodyText)!= "undefined") {
+    //                 console.log(JSON.parse(response._bodyText));
+    //                 console.log(typeof JSON.parse(response._bodyText));
+    //             }
+    //         }else{
+    //             err = fetch_resp[1];
+    //             if (err.message = 'Network request failed'){
+    //                 console.log('Network failed when fetching images.')
+    //             } else{
+    //                 console.log("failed when fetching images.")
+    //             }
+    //         }
+
+    //     },(err) =>{
+    //         console.log('promise rejected.');            
+    //     });
+
+    // }
+    
+
 
 
     static getLocations() {
@@ -62,32 +111,58 @@ export default class PreDownload {
         });
     }
 
+    static format_name(name){
+        if (name.includes(',')){
+          index = name.indexOf(',');
+          return name.substring(0,index)
+        }
+        return name
+    }
+    
+
     static getPoints() {
         path ='/api/get_points/';
         console.log('Getting points from server');
         CallBackend.get(path).then((fetch_resp) =>{
             if (fetch_resp[0]){
-                response = fetch_resp[1] 
-                console.log(response);
-                if(typeof JSON.parse(response._bodyText) != "undefined") {
+                response = fetch_resp[1];
+                // console.log(response);
+                if(response._bodyText.substring(0,1) != '<' && typeof JSON.parse(response._bodyText) != "undefined") {
 
                     Storage.saveItem("pointSequence", JSON.parse(response._bodyText)['pointSequence']);
-                    allPoints      =    JSON.parse(response._bodyText);
-                    delete allPoints['pointSequence'];
 
-                    Storage.saveItem("allPoints", JSON.stringify(allPoints));
-                    console.log("All Points info of all locations were saved.")
+                    //An dict including all points of all cities, the key of dict is the name of a city
+                    pointsOfAll      =    JSON.parse(response._bodyText); 
 
-                    // Storage.getItem('allLocations').then((locations) => {
+                    delete pointsOfAll['pointSequence'];
+                    for (var cityName in pointsOfAll) {
+                        if (pointsOfAll.hasOwnProperty(cityName)) {
 
-                    //     allCities = JSON.parse(locations);
+                            pointsInCity = pointsOfAll[cityName]; // An array including all points objects in a city
+                            
+                            if(pointsInCity.length > 0){
+                                for(var point in pointsInCity){
+                                    pointURI = pointsInCity[point].img; //the base64 encoded image
+                                    Storage.saveItem('pImage' + '_'+ this.format_name(cityName) + '_' + pointsInCity[point].name , pointURI);
+                                    console.log("Point image \""+ this.format_name(cityName)+'_'+pointsInCity[point].name + "\" were saved.");
+                                    
+                                    // delete it after storing the base64 encoded image, cause AsyncStorage only support 2MB for one item
+                                    delete pointsInCity[point]['img'];
+                                }
 
-                    //     for(var key in allCities){
-                    //         allCities[key].push(allPoints[key]);
-                    //         console.log('Point info were save: '+key)
-                    //     }
-                    //     Storage.saveItem("allLocations", JSON.stringify(allCities));
-                    // },(err) =>{alert('err')});
+                            }   
+
+                        }
+                    }
+                    // store all point info without image of points, in string format. the json format of allPoints looks like:
+                    // {city1: ['point1':{'name':'','lat':'','lng':''},'point2':{'name':'','lat':'','lng':''},] city2: ['point1':{'name':'','lat':'','lng':''},'point2':{'name':'','lat':'','lng':''},]}
+                    Storage.saveItem("allPoints", JSON.stringify(pointsOfAll));
+                    console.log("All Points info of all cities were saved.")
+
+
+
+                }else{
+                    console.log('Fail to get points from server.');
                 }
             }else{
                 err = fetch_resp[1]

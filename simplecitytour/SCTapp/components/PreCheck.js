@@ -13,8 +13,6 @@ export default class PreCkeck {
                     imgInfo = JSON.parse(response._bodyText)
                     for (var key in imgInfo) {
                         if (imgInfo.hasOwnProperty(key)) {
-                            // console.log(imgInfo[key]); 
-
                             Storage.saveItem(key, imgInfo[key]);
                             console.log("Latest \""+ key + "\" were saved.");
                         }

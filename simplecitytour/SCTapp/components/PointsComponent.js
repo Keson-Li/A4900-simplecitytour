@@ -28,6 +28,8 @@ export default class Points extends Component {
         this.navigate = this.props.navigation.navigate;
         this.get_points = this.get_points.bind(this);
         this.renderPoints = this.renderPoints.bind(this);
+        this.format_name = this.format_name.bind(this);
+        Text.defaultProps.allowFontScaling=false;
 
     };
 
@@ -46,28 +48,64 @@ export default class Points extends Component {
         inPointPage = false;
     }
 
+    format_name(name){
+        if (name.includes(',')){
+          index = name.indexOf(',');
+          return name.substring(0,index)
+        }
+        return name
+    }
+
     async get_points(){
-        name = this.props.navigation.state.params.cityName;
-        await Storage.getItem('allPoints').then((points) =>{
-            if(points){
-                if(inPointPage && JSON.parse(points)[name] != "undefined"){
-                    this.setState({
-                        points:JSON.parse(points)[name],
-                        isReady: true,
-                    })
-                }
+        var cityName = this.props.navigation.state.params.cityName;
+        var pointsInCity = null;
+        await Storage.getItem('allPoints').then((allpoints) =>{
+            if(allpoints){
+                pointsInCity = JSON.parse(allpoints)[cityName];
+
             }
-    
+
         },(err) =>{
           console.log("Get description error.")
         });
+
+        if (pointsInCity != null){
+            if(pointsInCity.length > 0){
+                for(var point in pointsInCity){
+                    await Storage.getItem('pImage' + '_'+ this.format_name(cityName) + '_' + pointsInCity[point].name).then((URI) =>{
+                        if(URI){
+                            var imageURI = URI; //the base64 encoded image
+                            pointsInCity[point]['img'] = imageURI;
+                            if(inPointPage){
+                                this.setState({
+                                    points:pointsInCity,
+                                    isReady: true,
+                                })
+                            }
+                        }
+                    },(err) =>{
+                        console.log('Error in reading image of point');
+                        console.log(err);
+                    });
+                }
+            }else{
+                this.setState({
+                    points:pointsInCity,
+                    isReady: true,
+                })
+            }
+        }    
     }
 
     renderPoints(){
         let {points} = this.state;
         items = points.map((item) =>{
             return (
-              <TouchableHighlight underlayColor="gray" key={item.name} onPress={() =>  navigate('PreviewCity', {cityName: this.props.navigation.state.params.cityName, cityDesc:this.props.navigation.state.params.cityDesc})}>
+              <TouchableHighlight underlayColor="gray" key={item.name} onPress={() =>  navigate('CityMap', {cityName: this.props.navigation.state.params.cityName, 
+                                                                                                                cityDesc:this.props.navigation.state.params.cityDesc,
+                                                                                                                cityLat:this.props.navigation.state.params.cityLat,
+                                                                                                                cityLng:this.props.navigation.state.params.cityLng,
+                                                                                                                })}>
                   <View style={{flex:1,flexDirection: "row", borderColor:'black',borderWidth: 1,}}>
                       <Image style={{
                           // flex: 1,
@@ -85,12 +123,22 @@ export default class Points extends Component {
             )
         });
 
+        if(points.length != 0){
+            return (
+                <View style={styles.container}>
+                    {items}
+                </View>
+            );
 
-        return (
-            <View style={styles.container}>
-                {items}
+        }else{
+            return(
+            <View style={{flex:1, width:Dimensions.get('window').width, height:Dimensions.get('window').width, justifyContent:'center', alignItems:'center'}}>
+                <Text style={{fontSize:40}}>Sorry!!</Text>
+                <Text style={{fontSize:25}}>No point for this city!</Text>
             </View>
-        );
+            );
+
+        }
     }
 
     render() {
