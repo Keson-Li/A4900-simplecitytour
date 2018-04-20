@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # import model objects 
 from django.contrib.auth.models import User
 from .models import Polygon, LandingPage, Location, PointType, Point, Tourist, UserPayment, AdminActiveTime
-from .serializers import UserSerializer, PolygonSerializer, LandingPageSerializer, LocationSerializer,PointTypeSerializer, PointSerializer, TouristSerializer, UserPaymentSerializer,AdminActiveTimeSerializer
+# from .serializers import UserSerializer, PolygonSerializer, LandingPageSerializer, LocationSerializer,PointTypeSerializer, PointSerializer, TouristSerializer, UserPaymentSerializer,AdminActiveTimeSerializer
 
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
@@ -40,6 +40,7 @@ from django.http import HttpResponse
 imageSequence       = 2
 citySequence        = 2
 pointSequene        = 2
+typeSequene         = 2
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny, ))
@@ -77,7 +78,7 @@ def signup_user(request):
 @permission_classes((permissions.AllowAny, ))
 def check_sequence(request):
     if request.method == 'GET':
-        backendSequences          = {'serverCitySequence': str(citySequence),'serverImageSequence':str(imageSequence),'serverPointSequence':str(pointSequene)}
+        backendSequences          = {'serverCitySequence': str(citySequence),'serverImageSequence':str(imageSequence),'serverPointSequence':str(pointSequene), 'serverTypeSequence':str(typeSequene)}
     return Response(backendSequences)
 
 
@@ -113,15 +114,21 @@ def get_points(request):
             
             for j in range(len(ponits_in_location)):
                 point = {}
+                pointId             = ponits_in_location[j].id
                 name                = ponits_in_location[j].name
                 lat                 = ponits_in_location[j].lat
                 lng                 = ponits_in_location[j].lng
                 description         = ponits_in_location[j].description
                 radius              = ponits_in_location[j].radius
 
+                types = []
+                for k in range(len(ponits_in_location[j].pointtypes.all())):
+                    types.append(ponits_in_location[j].pointtypes.all()[k].name)
+
+                 
                 img                 = ponits_in_location[j].img
                 imgPath             = BASE_DIR+img
-                print(imgPath)
+                # print(imgPath)
                 if os.path.exists(imgPath):
                     with open(imgPath, "rb") as image_file:
                         encoded_string = base64.b64encode(image_file.read())
@@ -129,6 +136,8 @@ def get_points(request):
                     with open(BASE_DIR+"/imgs/No_img.jpg", "rb") as image_file:
                         encoded_string = base64.b64encode(image_file.read())
 
+                point['id']           = pointId
+                point['types']        = types
                 point['name']         = name
                 point['lat']          = lat
                 point['lng']          = lng
@@ -165,23 +174,35 @@ def get_cities_imgs(request):
 
 
 
-@api_view(['POST'])
-@permission_classes((permissions.IsAdminUser ))
-def create_location(request):
+# @api_view(['POST'])
+# @permission_classes((permissions.IsAdminUser ))
+# def create_location(request):
     
-    if request.method == 'GET':
-        # return all the data from location database as a string
-        all_data        = serializers.serialize('json',Location.objects.all())
+#     if request.method == 'GET':
+#         # return all the data from location database as a string
+#         all_data        = serializers.serialize('json',Location.objects.all())
 
-        # load the string to be a list
-        all_data_list       = json.loads(all_data)
+#         # load the string to be a list
+#         all_data_list       = json.loads(all_data)
 
-        # iterate to remove api info in the list 
-        resp_list = []
-        for i in range(len(all_data_list)):
-            resp_list.append(all_data_list[i]['fields'])
+#         # iterate to remove api info in the list 
+#         resp_list = []
+#         for i in range(len(all_data_list)):
+#             resp_list.append(all_data_list[i]['fields'])
 
-    return Response(resp_list)
+#     return Response(resp_list)
+
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny, ))
+def getPointTypes(request):
+    if request.method == 'POST':
+        all_type = PointType.objects.all()
+        types = [typeSequene,]
+        for i in range(len(all_type)):
+            type_name = all_type[i].name
+            types.append(type_name)
+    return Response(types)
 
 
 
@@ -191,8 +212,9 @@ def create_location(request):
 def get_all_polygons(request):
     
     if request.method == 'GET':
+
         # return all the data from location database as a string
-        all_data        = serializers.serialize('json',Polygon.objects.all())
+        all_data        = Polygon.objects.all()
 
         # load the string to be a list
         all_data_list       = json.loads(all_data)

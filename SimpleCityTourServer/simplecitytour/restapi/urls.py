@@ -32,4 +32,5 @@ urlpatterns = [
     path('get_points/', views.get_points, name='points'),
     path('get_all_locations/', views.get_all_locations, name='get-locations'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('types/', views.getPointTypes, name='check-types'),
 ]
